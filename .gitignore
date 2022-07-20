@@ -1,0 +1,3 @@
+# .gitignore of subg
+node_modules
+build
