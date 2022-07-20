@@ -1,0 +1,26 @@
+{
+  "name": "subg",
+  "version": "0.0.1",
+  "description": "api and cli for managing sub-git-repositories",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charlyoleg/subg.git"
+  },
+  "keywords": [
+    "git",
+    "sub-repo"
+  ],
+  "author": "charlyoleg",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/charlyoleg/subg/issues"
+  },
+  "homepage": "https://github.com/charlyoleg/subg#readme",
+  "dependencies": {
+    "fs-extra": "^10.1.0"
+  }
+}
