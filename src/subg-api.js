@@ -1,7 +1,20 @@
-// subg.js
+// subg-api.js
 
 import fse from 'fs-extra';
 
+
+async function isGitRepo (pathDir2) {
+  let isRepo = false;
+  const subdirs = await fse.readdir(pathDir2, {withFileTypes: true});
+  for (const subitem of subdirs) {
+    // This is the condition to check if pathDir2 is a git-repo
+    // This condition might be considered too weak
+    if (subitem.isDirectory() && (subitem.name === '.git')) {
+      isRepo = true;
+    }
+  }
+  return isRepo;
+}
 
 async function searchGitRepo (pathDir, deepSearch = true) {
   let r_list = [];
@@ -14,13 +27,7 @@ async function searchGitRepo (pathDir, deepSearch = true) {
 	//console.log("Ignore " + pathDir2);
       } else {
 	//console.log("dbg 949: pathDir2: " + pathDir2);
-	let isRepo = false;
-  	const subdirs = await fse.readdir(pathDir2, {withFileTypes: true});
-  	for (const subitem of subdirs) {
-    	  if (subitem.isDirectory() && (subitem.name === '.git')) {
-   	    isRepo = true;
-	  }
-	}
+	const isRepo = await isGitRepo(pathDir2);
 	if (isRepo) {
 	  //console.log("Found git-repo: " + pathDir2);
 	  r_list.push(pathDir2);
@@ -34,8 +41,6 @@ async function searchGitRepo (pathDir, deepSearch = true) {
   return r_list;
 }
 
-const list = await searchGitRepo('.');
-//const list = await searchGitRepo('.', false);
 
-console.log(list);
+export { searchGitRepo };
 
