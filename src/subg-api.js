@@ -76,12 +76,18 @@ class Subg {
         const fstr = await fse.readFile(this.importYaml, 'utf-8');
         const fyaml = YAML22.parse(fstr);
         //console.log(fyaml);
+        const regex = /^\./;
         for (const repoDir in fyaml.repositories) {
           //console.log(repoDir);
+          // repoDir2 unifies the path format with the discovered git-repos
+          let repoDir2 = repoDir;
+          if (!regex.test(repoDir2)) {
+            repoDir2 = './' + repoDir;
+          }
           if (fyaml.repositories[repoDir].type === "git") {
-            this.listC.push(repoDir);
+            this.listC.push(repoDir2);
           } else {
-            list_non_git.push(repoDir);
+            list_non_git.push(repoDir2);
           }
         }
       } catch (error) {
