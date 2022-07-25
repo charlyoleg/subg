@@ -84,6 +84,7 @@ class Subg {
           if (!regex.test(repoDir2)) {
             repoDir2 = './' + repoDir;
           }
+          //console.log(fyaml.repositories[repoDir].type);
           if (fyaml.repositories[repoDir].type === "git") {
             this.listC.push(repoDir2);
           } else {
