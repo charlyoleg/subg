@@ -3,9 +3,10 @@
 
 import { Subg } from './subg-api.js';
 
-const repos = new Subg();
+//const repos = new Subg();
 //const repos = new Subg('.');
 //const repos = new Subg('.', false);
+const repos = new Subg('.', true, 'tmp/repos.yml');
 
 //await repos.discover();
 //await repos.discover('..');

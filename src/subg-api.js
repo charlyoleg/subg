@@ -25,21 +25,29 @@ async function searchGitRepo (pathDir, deepSearch = true) {
     if (item.isDirectory()) {
       const pathDir2 = pathDir + '/' + item.name;
       if ( ['.git', 'node_modules'].includes(item.name)) {
-	//console.log("Ignore " + pathDir2);
+        //console.log("Ignore " + pathDir2);
       } else {
-	//console.log("dbg 949: pathDir2: " + pathDir2);
-	const isRepo = await isGitRepo(pathDir2);
-	if (isRepo) {
-	  //console.log("Found git-repo: " + pathDir2);
-	  r_list.push(pathDir2);
-	}
-	if (deepSearch || !isRepo) {
-	  r_list = r_list.concat(await searchGitRepo(pathDir2, deepSearch));
-	}
+        //console.log("dbg 949: pathDir2: " + pathDir2);
+        const isRepo = await isGitRepo(pathDir2);
+        if (isRepo) {
+          //console.log("Found git-repo: " + pathDir2);
+          r_list.push(pathDir2);
+        }
+        if (deepSearch || !isRepo) {
+          r_list = r_list.concat(await searchGitRepo(pathDir2, deepSearch));
+        }
       }
     }
   }
   return r_list;
+}
+
+function array_intersection (arr1, arr2) {
+  return arr1.filter(elem => arr2.includes(elem));
+}
+
+function array_exclude (arr_base, arr_exclude) {
+  return arr_base.filter(elem => ! arr_exclude.includes(elem));
 }
 
 class Subg {
@@ -57,16 +65,32 @@ class Subg {
     this.discoverDir = discoverDir;
     this.deepSearch = deepSearch;
     this.listD = await searchGitRepo(this.discoverDir, this.deepSearch);
+    console.log(`Number of discovered cloned git repos: ${this.listD.length}`);
   }
 
   async readImportYaml (importYaml = this.importYaml) {
     this.importYaml = importYaml;
     if (this.importYaml !== '') {
+      let list_non_git = [];
       try {
         const fstr = await fse.readFile(this.importYaml, 'utf-8');
         const fyaml = YAML.parse(fstr);
+        //console.log(fyaml);
+        for (const repoDir in fyaml.repositories) {
+          //console.log(repoDir);
+          if (fyaml.repositories[repoDir].type === "git") {
+            this.listC.push(repoDir);
+          } else {
+            list_non_git.push(repoDir);
+          }
+        }
       } catch (error) {
         console.error(`ERR826: Error, the imported-yaml-file ${this.importYaml} is not valid!`);
+      }
+      console.log(`From imported Yaml, number of git-repos: ${this.listC.length}`);
+      console.log(`From imported Yaml, number of excluded repos: ${list_non_git.length}`);
+      for (const [idx, repoDir] of list_non_git.entries()) {
+        console.warn(`  ${idx.toString().padStart(3,' ')} - Excluded repo: ${repoDir}`);
       }
     }
   }
@@ -86,22 +110,19 @@ class Subg {
 
   // list the git-repos which are in the D-list and in the C-list
   cd_list () {
-    let listCD = [];
-    return listCD;
+    return array_intersection(this.listD, this.listC);
   }
 
   // list the git-repos which are in the D-list but not in the C-list
   // D not C
   dnc_list () {
-    let listCD = [];
-    return listCD;
+    return array_exclude(this.listD, this.listC);
   }
 
   // list the git-repos which are in the C-list but not in the D-list
   // C not D
   cnd_list () {
-    let listCD = [];
-    return listCD;
+    return array_exclude(this.listC, this.listD);
   }
 
 }
