@@ -1,7 +1,7 @@
 // subg-api.js
 
 import fse from 'fs-extra';
-import YAML from 'yaml';
+import YAML22 from 'yaml';
 
 
 async function isGitRepo (pathDir2) {
@@ -74,7 +74,7 @@ class Subg {
       let list_non_git = [];
       try {
         const fstr = await fse.readFile(this.importYaml, 'utf-8');
-        const fyaml = YAML.parse(fstr);
+        const fyaml = YAML22.parse(fstr);
         //console.log(fyaml);
         for (const repoDir in fyaml.repositories) {
           //console.log(repoDir);
@@ -128,5 +128,5 @@ class Subg {
 }
 
 
-export { Subg };
+export default Subg;
 
