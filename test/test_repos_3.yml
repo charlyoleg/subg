@@ -1,0 +1,10 @@
+# test_repos_3.yml
+
+repositories:
+  klm/induction_furnace:
+    url: https://github.com/charlyoleg/induction_furnace.git
+    version: master
+    type: git
+  klm/kiss_webrtc:
+    url: https://github.com/charlyoleg/kiss_webrtc.git
+    version: master

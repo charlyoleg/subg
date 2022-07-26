@@ -29,10 +29,12 @@ console.log(dnc_list);
 console.log(cnd_list);
 
 
-await repos.d_export_yaml('tmp5/exported_repos_1.yml');
-await repos.d_export_yaml('tmp5/exported_repos_2.yml', true);
-console.log(`subg-verison: ${Subg.version()}`);
-process.exit(0);
+//await repos.d_export_yaml('tmp5/exported_repos_1.yml');
+//await repos.d_export_yaml('tmp5/exported_repos_2.yml', true);
+//const validation_result2 = await repos.validate_yaml('test/test_repos_3.yml');
+//console.log(validation_result2);
+//console.log(`subg-verison: ${Subg.version()}`);
+//process.exit(0);
 
 await repos.c_clone();
 await repos.cd_checkout();
@@ -51,6 +53,8 @@ await repos.d_clean();
 
 await repos.d_export_yaml('tmp5/exported_repos_1.yml');
 await repos.d_export_yaml('tmp5/exported_repos_2.yml', true);
-await repos.validate_yaml('test/test_repos_3.yml');
+const validation_result = await repos.validate_yaml('test/test_repos_3.yml');
+console.log(validation_result);
 
+console.log(`subg-verison: ${Subg.version()}`);
 

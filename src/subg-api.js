@@ -139,6 +139,39 @@ async function get_repos_info (repos) {
   return repos_info;
 }
 
+async function validate_yaml_external (yamlPath) {
+  let fyaml = {};
+  try {
+    const fstr = await fse.readFile(yamlPath, 'utf-8');
+    fyaml = YAML.parse(fstr);
+  } catch(error) {
+    console.log(`ERR439: Error by reading the yaml-file ${yamlPath}!`);
+    console.error(error);
+    return -1;
+  }
+  try {
+    if (! fyaml.hasOwnProperty('repositories'))
+      throw 'The property "repositories" is missing!';
+    for (const repo in fyaml.repositories) {
+      if (! fyaml.repositories[repo].hasOwnProperty('url'))
+        throw `The property "url" is missing for repo ${repo} !`;
+      if (! fyaml.repositories[repo].hasOwnProperty('version'))
+        throw `The property "version" is missing for repo ${repo} !`;
+      if (! fyaml.repositories[repo].hasOwnProperty('type')) {
+        console.log(`WARN390: Warning, the property "type" is missing for repo ${repo} !`);
+      } else if (fyaml.repositories[repo].type !== 'git') {
+        console.log(`WARN395: Warning, the property "type" of repo ${repo} is not git but ${fyaml.repositories[repo].type}!`);
+      }
+    }
+    console.log(`The yaml-file ${yamlPath} is valid!`);
+    return 0;
+  } catch(error) {
+    console.error(error);
+    console.log(`Invalid yaml-file ${yamlPath}!`);
+    return -2;
+  }
+}
+
 class Subg {
 
   constructor (discoverDir = '.', deepSearch = true, importYaml='', importDir='') {
@@ -330,8 +363,7 @@ class Subg {
   }
 
   async validate_yaml (yamlPath) {
-    // TODO
-    console.log(`The yaml-file ${yamlPath} is valid!`);
+    return await validate_yaml_external(yamlPath);
   }
 
   static version () {
