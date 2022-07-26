@@ -123,14 +123,14 @@ class Subg {
   }
 
   // this init function cannot be included in the constructor because the constructor can not be async
-  async discover (discoverDir = this.discoverDir, deepSearch = this.deepSearch) {
+  async discover_repos (discoverDir = this.discoverDir, deepSearch = this.deepSearch) {
     this.discoverDir = discoverDir;
     this.deepSearch = deepSearch;
     this.listD = await searchGitRepo(this.discoverDir, this.deepSearch);
     console.log(`Number of discovered cloned git repos: ${this.listD.length}`);
   }
 
-  async readImportYaml (importYaml = this.importYaml, importDir = this.importDir) {
+  async import_yaml (importYaml = this.importYaml, importDir = this.importDir) {
     this.importYaml = importYaml;
     this.importDir = importDir;
     if (this.importYaml !== '') {
@@ -181,8 +181,8 @@ class Subg {
               deepSearch = this.deepSearch,
               importYaml = this.importYaml,
               importDir = this.importDir) {
-    await this.discover(discoverDir, deepSearch);
-    await this.readImportYaml(importYaml, importDir);
+    await this.discover_repos(discoverDir, deepSearch);
+    await this.import_yaml(importYaml, importDir);
   }
 
   d_list () {
@@ -233,41 +233,60 @@ class Subg {
       repos = this.cd_list();
     }
     for (const [idx, localPath] of repos.entries()) {
-      console.log(`===> ${idx+1} - On git-repo  ${localPath}  git-command ${git_command}`);
+      console.log(`===> ${idx+1} - On git-repo  ${localPath}  with command  git ${git_command.join(' ')}`);
       await git_custom(localPath, git_command);
     }
   }
 
   async d_fetch (only_configured_repo = false) {
-    await d_custom(['fetch', '--prune'], only_configured_repo);
+    await this.d_custom(['fetch', '--prune'], only_configured_repo);
   }
 
   async d_pull (only_configured_repo = false) {
-    await d_custom(['pull'], only_configured_repo);
+    await this.d_custom(['pull'], only_configured_repo);
   }
 
   async d_push (only_configured_repo = false) {
-    await d_custom(['push'], only_configured_repo);
+    await this.d_custom(['push'], only_configured_repo);
+  }
+
+  async d_branch (only_configured_repo = false) {
+    await this.d_custom(['branch', '--show-current'], only_configured_repo);
   }
 
   async d_status (only_configured_repo = false) {
-    await d_custom(['status'], only_configured_repo);
+    await this.d_custom(['status'], only_configured_repo);
   }
 
   async d_diff (only_configured_repo = false) {
-    await d_custom(['diff'], only_configured_repo);
+    await this.d_custom(['diff'], only_configured_repo);
   }
 
   async d_log (only_configured_repo = false) {
-    await d_custom(['log', '-n', '3'], only_configured_repo);
+    await this.d_custom(['log', '-n', '3'], only_configured_repo);
   }
 
   async d_remote (only_configured_repo = false) {
-    await d_custom(['remote', '-vv'], only_configured_repo);
+    await this.d_custom(['remote', '-vv'], only_configured_repo);
+  }
+
+  async d_stash_list (only_configured_repo = false) {
+    await this.d_custom(['stash', 'list'], only_configured_repo);
   }
 
   async d_clean (only_configured_repo = false) {
-    await d_custom(['clean', '-dxf'], only_configured_repo);
+    await this.d_custom(['clean', '-dxf'], only_configured_repo);
+  }
+
+  async d_export_yaml (yamlPath) {
+    let fyaml = { };
+    // TODO
+    console.log(`The yaml-file ${yamlPath} has been written!`);
+  }
+
+  async validate_yaml (yamlPath) {
+    // TODO
+    console.log(`The yaml-file ${yamlPath} is valid!`);
   }
 
 }

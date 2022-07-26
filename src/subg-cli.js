@@ -8,10 +8,12 @@ import { Subg } from './subg-api.js';
 //const repos = new Subg('.', false);
 //const repos = new Subg('.', true, 'tmp/repos.yml', '');
 //const repos = new Subg('.', true, 'tmp/repos.yml', '.');
-const repos = new Subg('.', true, 'test/test_repos_1.yml', 'tmp3');
+//const repos = new Subg('.', true, 'test/test_repos_1.yml', 'tmp3');
+const repos = new Subg('.', true, 'test/test_repos_2.yml', 'tmp3');
 
-//await repos.discover();
-//await repos.discover('..');
+//await repos.discover_repos();
+//await repos.discover_repos('..');
+//await repos.import_yaml('test/test_repos_1.yml', 'tmp3');
 await repos.init();
 //await repos.init('..');
 const d_list = repos.d_list();
@@ -28,3 +30,20 @@ console.log(cnd_list);
 
 await repos.c_clone();
 await repos.cd_checkout();
+await repos.d_custom(['status']);
+await repos.d_custom(['status'], true);
+await repos.d_fetch();
+await repos.d_pull();
+//await repos.d_push();
+await repos.d_branch();
+await repos.d_status();
+await repos.d_diff();
+await repos.d_log();
+await repos.d_remote();
+await repos.d_stash_list();
+await repos.d_clean();
+
+await repos.d_export_yaml('tmp5/exported_repo.yml');
+await repos.validate_yaml('test/test_repos_3.yml');
+
+
