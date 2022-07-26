@@ -25,3 +25,4 @@ console.log(cd_list);
 console.log(dnc_list);
 console.log(cnd_list);
 
+await repos.c_clone();

@@ -1,0 +1,26 @@
+# test_repos_1.yml
+
+repositories:
+  induction_furnace:
+    type: git
+    url: git@github.com:charlyoleg/induction_furnace.git
+    version: master
+  kiss_webrtc:
+    url: git@github.com:charlyoleg/kiss_webrtc.git
+    version: master
+  rouleau:
+    type: git
+    url: git@github.com:charlyoleg/rouleau.git
+    version: master
+  rouleau2:
+    url: git@github.com:charlyoleg/rouleau.git
+    version: master
+  abc/rouleau:
+    url: git@github.com:charlyoleg/rouleau.git
+    version: master
+  xyz/zzz/rouleau:
+    url: git@github.com:charlyoleg/rouleau.git
+    version: master
+  abc/ccc/kiss_webrtc:
+    url: git@github.com:charlyoleg/kiss_webrtc.git
+    version: master

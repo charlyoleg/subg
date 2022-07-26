@@ -112,7 +112,7 @@ class Subg {
       console.log(`From imported Yaml, number of git-repos: ${Object.keys(this.listC).length}`);
       console.log(`From imported Yaml, number of excluded repos: ${list_non_git.length}`);
       for (const [idx, repoDir] of list_non_git.entries()) {
-        console.warn(`  ${idx.toString().padStart(3,' ')} - Excluded repo: ${repoDir}`);
+        console.log(`  ${(idx+1).toString().padStart(3,' ')} - Excluded repo: ${repoDir}`);
       }
     }
   }
@@ -148,6 +148,13 @@ class Subg {
   // C not D
   cnd_list () {
     return array_exclude(Object.keys(this.listC), this.listD);
+  }
+
+  async c_clone () {
+    for (const [idx, localPath] of Object.keys(this.listC).entries()) {
+      const repo = this.listC[localPath];
+      console.log(`===> ${idx+1} - clone  ${localPath}  from  ${repo.url}  at version  ${repo.version}`);
+    }
   }
 
 }
