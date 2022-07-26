@@ -1,7 +1,7 @@
 // subg-cli.js
 
 
-import Subg from './subg-api.js';
+import { Subg } from './subg-api.js';
 
 //const repos = new Subg();
 //const repos = new Subg('.');
@@ -27,3 +27,4 @@ console.log(dnc_list);
 console.log(cnd_list);
 
 await repos.c_clone();
+await repos.cd_checkout();

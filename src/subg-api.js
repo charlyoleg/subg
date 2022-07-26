@@ -1,12 +1,11 @@
 // subg-api.js
 
-import path from 'path';
+import path from 'node:path';
+import fs from 'node:fs';
+import fsp from 'node:fs/promises';
 import fse from 'fs-extra';
 import YAML from 'yaml';
 import {simpleGit} from 'simple-git';
-
-
-const git = simpleGit();
 
 async function isGitRepo (pathDir2) {
   let isRepo = false;
@@ -52,6 +51,64 @@ function array_intersection (arr1, arr2) {
 
 function array_exclude (arr_base, arr_exclude) {
   return arr_base.filter(elem => ! arr_exclude.includes(elem));
+}
+
+async function git_clone (localPath, remote_url, version) {
+  try {
+    if (!fs.existsSync(localPath)) {
+      const git = simpleGit();
+      const gitlog = await git.clone(remote_url, localPath);
+      console.log(gitlog);
+      await git_checkout(localPath, version);
+    } else {
+      const fstat = await fsp.stat(localPath);
+      if (fstat.isDirectory()) {
+        if (isGitRepo(localPath)) {
+          const git2 = simpleGit(localPath);
+          const remote = await git2.getRemotes(true);
+          const remote_url = remote[0].refs.fetch;
+          //console.log(remote_url);
+          if (remote_url === remote_url) {
+            console.log(`INFO398: the git-repo ${localPath} is already cloned! Then just git-pull!`);
+            const gitlog2 = await git2.pull();
+            console.log(gitlog2);
+            await git_checkout(localPath, version);
+          } else {
+            console.log(`WARN381: Warning, the git-repo ${localPath} already exist but with an unexpected remote! git-clone/pull aborted!`);
+          }
+        } else {
+          console.log(`WARN869: Warning, the directory ${localPath} already exist but is not a git-repo! git-clone aborted!`);
+        }
+      } else {
+        console.log(`WARN537: Warning, the path ${localPath} already exist and is a file! git-clone aborted!`);
+      }
+    }
+  } catch(error) {
+    console.log(`ERR162: Error by cloning ${localPath}  from  ${remote_url}`);
+    console.error(error);
+  }
+}
+
+async function git_checkout (repoPath, version) {
+  try {
+    const git = simpleGit(repoPath);
+    const gitlog = await git.checkout(version);
+    console.log(gitlog);
+  } catch(error) {
+    console.log(`ERR523: Error by checkout ${localPath}  for version  ${version}`);
+    console.error(error);
+  }
+}
+
+async function git_custom (repoPath, gitCommand) {
+  try {
+    const git = simpleGit(repoPath);
+    const gitlog = await git.raw(...gitCommand);
+    console.log(gitlog);
+  } catch(error) {
+    console.log(`ERR772: Error by git-command ${gitCommand}  on repo  ${repoPath}`);
+    console.error(error);
+  }
 }
 
 class Subg {
@@ -109,7 +166,7 @@ class Subg {
             list_non_git.push(repoDir2);
           }
         }
-      } catch (error) {
+      } catch(error) {
         console.error(`ERR826: Error, the imported-yaml-file ${this.importYaml} is not valid!`);
       }
       console.log(`From imported Yaml, number of git-repos: ${Object.keys(this.listC).length}`);
@@ -157,18 +214,64 @@ class Subg {
     for (const [idx, localPath] of Object.keys(this.listC).entries()) {
       const repo = this.listC[localPath];
       console.log(`===> ${idx+1} - clone  ${localPath}  from  ${repo.url}  at version  ${repo.version}`);
-      try {
-        const gitlog = await git.clone(repo.url, localPath);
-        console.log(gitlog);
-      } catch(error) {
-        console.log(`ERR162: Error by cloning ${localPath}  from  ${repo.url}`);
-        console.error(error);
-      }
+      await git_clone(localPath, repo.url, repo.verison);
     }
+  }
+
+  async cd_checkout () {
+    const list_cd = this.cd_list();
+    for (const [idx, localPath] of list_cd.entries()) {
+      const repo = this.listC[localPath];
+      console.log(`===> ${idx+1} - checkout  ${localPath}  at version  ${repo.version}`);
+      await git_checkout(localPath, repo.verison);
+    }
+  }
+
+  async d_custom (git_command, only_configured_repo = false) {
+    let repos = this.d_list();
+    if (only_configured_repo) {
+      repos = this.cd_list();
+    }
+    for (const [idx, localPath] of repos.entries()) {
+      console.log(`===> ${idx+1} - On git-repo  ${localPath}  git-command ${git_command}`);
+      await git_custom(localPath, git_command);
+    }
+  }
+
+  async d_fetch (only_configured_repo = false) {
+    await d_custom(['fetch', '--prune'], only_configured_repo);
+  }
+
+  async d_pull (only_configured_repo = false) {
+    await d_custom(['pull'], only_configured_repo);
+  }
+
+  async d_push (only_configured_repo = false) {
+    await d_custom(['push'], only_configured_repo);
+  }
+
+  async d_status (only_configured_repo = false) {
+    await d_custom(['status'], only_configured_repo);
+  }
+
+  async d_diff (only_configured_repo = false) {
+    await d_custom(['diff'], only_configured_repo);
+  }
+
+  async d_log (only_configured_repo = false) {
+    await d_custom(['log', '-n', '3'], only_configured_repo);
+  }
+
+  async d_remote (only_configured_repo = false) {
+    await d_custom(['remote', '-vv'], only_configured_repo);
+  }
+
+  async d_clean (only_configured_repo = false) {
+    await d_custom(['clean', '-dxf'], only_configured_repo);
   }
 
 }
 
 
-export default Subg;
+export { Subg };
 
