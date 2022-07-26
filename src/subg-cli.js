@@ -28,6 +28,12 @@ console.log(cd_list);
 console.log(dnc_list);
 console.log(cnd_list);
 
+
+await repos.d_export_yaml('tmp5/exported_repos_1.yml');
+await repos.d_export_yaml('tmp5/exported_repos_2.yml', true);
+console.log(`subg-verison: ${Subg.version()}`);
+process.exit(0);
+
 await repos.c_clone();
 await repos.cd_checkout();
 await repos.d_custom(['status']);
@@ -43,7 +49,8 @@ await repos.d_remote();
 await repos.d_stash_list();
 await repos.d_clean();
 
-await repos.d_export_yaml('tmp5/exported_repo.yml');
+await repos.d_export_yaml('tmp5/exported_repos_1.yml');
+await repos.d_export_yaml('tmp5/exported_repos_2.yml', true);
 await repos.validate_yaml('test/test_repos_3.yml');
 
 

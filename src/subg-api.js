@@ -111,6 +111,34 @@ async function git_custom (repoPath, gitCommand) {
   }
 }
 
+async function get_repos_info (repos) {
+  let repos_info = [];
+  const regex = /^\.\//;
+  for (const [idx, localPath] of repos.entries()) {
+    console.log(`===> ${idx+1} - get info of git-repo  ${localPath}`);
+    const localPath2 = localPath.replace(regex, '');
+    try {
+      const git = simpleGit(localPath);
+      const remote = await git.getRemotes(true);
+      //console.log(remote);
+      const remote_url = remote[0].refs.fetch;
+      const branch = await git.branch();
+      //console.log(branch);
+      const branch_current = branch.current;
+      const commit = await git.log();
+      //console.log(commit);
+      const commit_hash = commit.latest.hash;
+      const info = { 'localPath': localPath2, 'url': remote_url, 'branch': branch_current, 'commit': commit_hash};
+      //console.log(info);
+      repos_info.push(info);
+    } catch(error) {
+      console.log(`ERR398: Error by git-operations on repo  ${localPath}`);
+      console.error(error);
+    }
+  }
+  return repos_info;
+}
+
 class Subg {
 
   constructor (discoverDir = '.', deepSearch = true, importYaml='', importDir='') {
@@ -167,7 +195,8 @@ class Subg {
           }
         }
       } catch(error) {
-        console.error(`ERR826: Error, the imported-yaml-file ${this.importYaml} is not valid!`);
+        console.log(`ERR826: Error, the imported-yaml-file ${this.importYaml} is not valid!`);
+        console.error(error);
       }
       console.log(`From imported Yaml, number of git-repos: ${Object.keys(this.listC).length}`);
       console.log(`From imported Yaml, number of excluded repos: ${list_non_git.length}`);
@@ -278,15 +307,50 @@ class Subg {
     await this.d_custom(['clean', '-dxf'], only_configured_repo);
   }
 
-  async d_export_yaml (yamlPath) {
-    let fyaml = { };
-    // TODO
+  async d_export_yaml (yamlPath, exact_commit = false) {
+    const repos = this.d_list();
+    const repos_info = await get_repos_info(repos);
+    let fyaml = { 'repositories': {} };
+    for (const repo of repos_info) {
+      let version = repo.branch;
+      if (exact_commit) {
+        version = repo.commit;
+      }
+      fyaml.repositories[repo.localPath] = { 'type':'git', 'url': repo.url, 'version': version };
+    }
+    //console.log(fyaml);
+    const fstr = YAML.stringify(fyaml);
+    try {
+      await fse.outputFile(yamlPath, fstr);
+    } catch(error) {
+      console.log(`ERR218: Error by writting the yaml-file ${yamlPath}!`);
+      console.error(error);
+    }
     console.log(`The yaml-file ${yamlPath} has been written!`);
   }
 
   async validate_yaml (yamlPath) {
     // TODO
     console.log(`The yaml-file ${yamlPath} is valid!`);
+  }
+
+  static version () {
+    const VERSION_MAJOR = 0;
+    const VERSION_MINOR = 0;
+    const VERSION_HOTFIX = 0;
+    const build_number = 0;
+    const repoName = 'abc';
+    const gitHash = '123';
+    const date = '567';
+    let ver = '';
+    ver += VERSION_MAJOR.toString();
+    ver += '.' + VERSION_MINOR.toString();
+    ver += '.' + VERSION_HOTFIX.toString();
+    ver += '.' + build_number.toString();
+    ver += '_' + repoName;
+    ver += '_' + gitHash;
+    ver += '_' + date;
+    return ver;
   }
 
 }
