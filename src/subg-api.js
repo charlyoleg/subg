@@ -3,7 +3,10 @@
 import path from 'path';
 import fse from 'fs-extra';
 import YAML from 'yaml';
+import {simpleGit} from 'simple-git';
 
+
+const git = simpleGit();
 
 async function isGitRepo (pathDir2) {
   let isRepo = false;
@@ -154,6 +157,13 @@ class Subg {
     for (const [idx, localPath] of Object.keys(this.listC).entries()) {
       const repo = this.listC[localPath];
       console.log(`===> ${idx+1} - clone  ${localPath}  from  ${repo.url}  at version  ${repo.version}`);
+      try {
+        const gitlog = await git.clone(repo.url, localPath);
+        console.log(gitlog);
+      } catch(error) {
+        console.log(`ERR162: Error by cloning ${localPath}  from  ${repo.url}`);
+        console.error(error);
+      }
     }
   }
 

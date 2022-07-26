@@ -7,7 +7,8 @@ import Subg from './subg-api.js';
 //const repos = new Subg('.');
 //const repos = new Subg('.', false);
 //const repos = new Subg('.', true, 'tmp/repos.yml', '');
-const repos = new Subg('.', true, 'tmp/repos.yml', '.');
+//const repos = new Subg('.', true, 'tmp/repos.yml', '.');
+const repos = new Subg('.', true, 'test/test_repos_1.yml', 'tmp3');
 
 //await repos.discover();
 //await repos.discover('..');
