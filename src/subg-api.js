@@ -1,7 +1,8 @@
 // subg-api.js
 
+import path from 'path';
 import fse from 'fs-extra';
-import YAML22 from 'yaml';
+import YAML from 'yaml';
 
 
 async function isGitRepo (pathDir2) {
@@ -52,12 +53,13 @@ function array_exclude (arr_base, arr_exclude) {
 
 class Subg {
 
-  constructor (discoverDir = '.', deepSearch = true, importYaml='') {
+  constructor (discoverDir = '.', deepSearch = true, importYaml='', importDir='') {
     this.discoverDir = discoverDir;
     this.deepSearch = deepSearch;
     this.importYaml = importYaml;
+    this.importDir = importDir;
     this.listD = []; // list of the discovered git-repositories
-    this.listC = []; // list of the configured git-repositories
+    this.listC = {}; // list of the configured git-repositories
   }
 
   // this init function cannot be included in the constructor because the constructor can not be async
@@ -68,25 +70,38 @@ class Subg {
     console.log(`Number of discovered cloned git repos: ${this.listD.length}`);
   }
 
-  async readImportYaml (importYaml = this.importYaml) {
+  async readImportYaml (importYaml = this.importYaml, importDir = this.importDir) {
     this.importYaml = importYaml;
+    this.importDir = importDir;
     if (this.importYaml !== '') {
+      let baseDir = path.dirname(this.importYaml);
+      if (this.importDir !== '') {
+        baseDir = this.importDir;
+      }
+      //console.log(baseDir);
       let list_non_git = [];
       try {
         const fstr = await fse.readFile(this.importYaml, 'utf-8');
-        const fyaml = YAML22.parse(fstr);
+        const fyaml = YAML.parse(fstr);
         //console.log(fyaml);
         const regex = /^\./;
         for (const repoDir in fyaml.repositories) {
           //console.log(repoDir);
           // repoDir2 unifies the path format with the discovered git-repos
           let repoDir2 = repoDir;
+          if (!['', '.'].includes(baseDir)) {
+            repoDir2 = baseDir + '/' + repoDir;
+          }
           if (!regex.test(repoDir2)) {
-            repoDir2 = './' + repoDir;
+            repoDir2 = './' + repoDir2;
           }
           //console.log(fyaml.repositories[repoDir].type);
-          if (fyaml.repositories[repoDir].type === "git") {
-            this.listC.push(repoDir2);
+          if (!fyaml.repositories[repoDir].hasOwnProperty('type')
+             || (fyaml.repositories[repoDir].type === "git")) {
+            this.listC[repoDir2] = {
+              url: fyaml.repositories[repoDir].url,
+              version: fyaml.repositories[repoDir].version
+            };
           } else {
             list_non_git.push(repoDir2);
           }
@@ -94,7 +109,7 @@ class Subg {
       } catch (error) {
         console.error(`ERR826: Error, the imported-yaml-file ${this.importYaml} is not valid!`);
       }
-      console.log(`From imported Yaml, number of git-repos: ${this.listC.length}`);
+      console.log(`From imported Yaml, number of git-repos: ${Object.keys(this.listC).length}`);
       console.log(`From imported Yaml, number of excluded repos: ${list_non_git.length}`);
       for (const [idx, repoDir] of list_non_git.entries()) {
         console.warn(`  ${idx.toString().padStart(3,' ')} - Excluded repo: ${repoDir}`);
@@ -102,9 +117,12 @@ class Subg {
     }
   }
 
-  async init (discoverDir = this.discoverDir, deepSearch = this.deepSearch, importYaml = this.importYaml) {
-    await this.discover (discoverDir, deepSearch);
-    await this.readImportYaml (importYaml);
+  async init (discoverDir = this.discoverDir,
+              deepSearch = this.deepSearch,
+              importYaml = this.importYaml,
+              importDir = this.importDir) {
+    await this.discover(discoverDir, deepSearch);
+    await this.readImportYaml(importYaml, importDir);
   }
 
   d_list () {
@@ -112,24 +130,24 @@ class Subg {
   }
 
   c_list () {
-    return this.listC;
+    return Object.keys(this.listC);
   }
 
   // list the git-repos which are in the D-list and in the C-list
   cd_list () {
-    return array_intersection(this.listD, this.listC);
+    return array_intersection(this.listD, Object.keys(this.listC));
   }
 
   // list the git-repos which are in the D-list but not in the C-list
   // D not C
   dnc_list () {
-    return array_exclude(this.listD, this.listC);
+    return array_exclude(this.listD, Object.keys(this.listC));
   }
 
   // list the git-repos which are in the C-list but not in the D-list
   // C not D
   cnd_list () {
-    return array_exclude(this.listC, this.listD);
+    return array_exclude(Object.keys(this.listC), this.listD);
   }
 
 }

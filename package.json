@@ -23,6 +23,7 @@
   "homepage": "https://github.com/charlyoleg/subg#readme",
   "dependencies": {
     "fs-extra": "^10.1.0",
+    "simple-git": "^3.10.0",
     "yaml": "^2.1.1"
   }
 }
