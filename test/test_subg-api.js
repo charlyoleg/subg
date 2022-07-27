@@ -1,7 +1,7 @@
 // subg-cli.js
 
 
-import { Subg } from './subg-api.js';
+import { Subg } from '../src/subg-api.js';
 
 //const repos = new Subg();
 //const repos = new Subg('.');
