@@ -7,7 +7,7 @@ import fse from 'fs-extra';
 import YAML from 'yaml';
 import {simpleGit} from 'simple-git';
 
-async function isGitRepo (pathDir2:string):boolean {
+async function isGitRepo (pathDir2:string):Promise<boolean> {
   let isRepo = false;
   const subdirs = await fse.readdir(pathDir2, {withFileTypes: true});
   for (const subitem of subdirs) {
@@ -20,8 +20,8 @@ async function isGitRepo (pathDir2:string):boolean {
   return isRepo;
 }
 
-async function searchGitRepo (pathDir:string, deepSearch = true):string[] {
-  let r_list = [];
+async function searchGitRepo (pathDir:string, deepSearch = true):Promise<string[]> {
+  let r_list:string[] = [];
   //console.log("dbg538: current pathDir: " + pathDir);
   const local_list = await fse.readdir(pathDir, {withFileTypes: true});
   for (const item of local_list) {
@@ -53,7 +53,7 @@ function array_exclude (arr_base:string[], arr_exclude:string[]):string[] {
   return arr_base.filter(elem => ! arr_exclude.includes(elem));
 }
 
-async function git_clone (localPath:string, remote_url:string, version:string):number {
+async function git_clone (localPath:string, remote_url:string, version:string):Promise<number> {
   let r_code = -1;
   try {
     if (!fs.existsSync(localPath)) {
@@ -64,7 +64,8 @@ async function git_clone (localPath:string, remote_url:string, version:string):n
     } else {
       const fstat = await fsp.stat(localPath);
       if (fstat.isDirectory()) {
-        if (isGitRepo(localPath)) {
+        const isRepo = await isGitRepo(localPath);
+        if (isRepo) {
           const git2 = simpleGit(localPath);
           const remote = await git2.getRemotes(true);
           const remote_url = remote[0].refs.fetch;
@@ -91,7 +92,7 @@ async function git_clone (localPath:string, remote_url:string, version:string):n
   return r_code;
 }
 
-async function git_checkout (repoPath:string, version:string):number {
+async function git_checkout (repoPath:string, version:string):Promise<number> {
   let r_code = -2;
   try {
     const git = simpleGit(repoPath);
@@ -99,17 +100,18 @@ async function git_checkout (repoPath:string, version:string):number {
     console.log(gitlog);
     r_code = 0;
   } catch(error) {
-    console.log(`ERR523: Error by checkout ${localPath}  for version  ${version}`);
+    console.log(`ERR523: Error by checkout ${repoPath}  for version  ${version}`);
     console.error(error);
   }
   return r_code;
 }
 
-async function git_custom (repoPath:string, gitCommand:string):number {
+async function git_custom (repoPath:string, gitCommand:string):Promise<number> {
   let r_code = -1;
   try {
     const git = simpleGit(repoPath);
-    const gitlog = await git.raw(...gitCommand);
+    const gitCommand2 = gitCommand.split(' ');
+    const gitlog = await git.raw(...gitCommand2);
     console.log(gitlog);
     r_code = 0;
   } catch(error) {
@@ -126,7 +128,7 @@ interface RepoInfo {
   commit: string;
 }
 
-async function get_repos_info (repos:string[]):RepoInfo[] {
+async function get_repos_info (repos:string[]):Promise<RepoInfo[]> {
   let repos_info = [];
   const regex = /^\.\//;
   for (const [idx, localPath] of repos.entries()) {
@@ -154,8 +156,8 @@ async function get_repos_info (repos:string[]):RepoInfo[] {
   return repos_info;
 }
 
-async function validate_yaml_external (yamlPath:string):number {
-  let fyaml = {};
+async function validate_yaml_external (yamlPath:string):Promise<number> {
+  let fyaml:any = {};
   try {
     const fstr = await fse.readFile(yamlPath, 'utf-8');
     fyaml = YAML.parse(fstr);
@@ -210,14 +212,14 @@ class Subg {
   }
 
   // this init function cannot be included in the constructor because the constructor can not be async
-  async discover_repos (discoverDir = this.discoverDir, deepSearch = this.deepSearch):void {
+  async discover_repos (discoverDir = this.discoverDir, deepSearch = this.deepSearch):Promise<void> {
     this.discoverDir = discoverDir;
     this.deepSearch = deepSearch;
     this.listD = await searchGitRepo(this.discoverDir, this.deepSearch);
     console.log(`Number of discovered cloned git repos: ${this.listD.length}`);
   }
 
-  async import_yaml (importYaml = this.importYaml, importDir = this.importDir):void {
+  async import_yaml (importYaml = this.importYaml, importDir = this.importDir):Promise<void> {
     this.importYaml = importYaml;
     this.importDir = importDir;
     if (this.importYaml !== '') {
@@ -268,7 +270,7 @@ class Subg {
   async init (discoverDir = this.discoverDir,
               deepSearch = this.deepSearch,
               importYaml = this.importYaml,
-              importDir = this.importDir):void {
+              importDir = this.importDir):Promise<void> {
     await this.discover_repos(discoverDir, deepSearch);
     await this.import_yaml(importYaml, importDir);
   }
@@ -298,7 +300,7 @@ class Subg {
     return array_exclude(Object.keys(this.listC), this.listD);
   }
 
-  async c_clone ():number {
+  async c_clone ():Promise<number> {
     let r_code = 0;
     for (const [idx, localPath] of Object.keys(this.listC).entries()) {
       const repo = this.listC[localPath];
@@ -308,7 +310,7 @@ class Subg {
     return r_code;
   }
 
-  async cd_checkout () {
+  async cd_checkout ():Promise<number> {
     let r_code = 0;
     const list_cd = this.cd_list();
     for (const [idx, localPath] of list_cd.entries()) {
@@ -319,7 +321,7 @@ class Subg {
     return r_code;
   }
 
-  async d_custom (git_command:string, only_configured_repo = false):number {
+  async d_custom (git_command:string, only_configured_repo = false):Promise<number> {
     let r_code = 0;
     let repos = this.d_list();
     if (only_configured_repo) {
@@ -327,52 +329,52 @@ class Subg {
     }
     for (const [idx, localPath] of repos.entries()) {
       console.log(`===> ${idx+1} - On git-repo  ${localPath}  with command  git ${git_command}`);
-      r_code += await git_custom(localPath, git_command.split(' '));
+      r_code += await git_custom(localPath, git_command);
     }
     return r_code;
   }
 
-  async d_fetch (only_configured_repo = false):number {
+  async d_fetch (only_configured_repo = false):Promise<number> {
     return await this.d_custom('fetch --prune', only_configured_repo);
   }
 
-  async d_pull (only_configured_repo = false):number {
+  async d_pull (only_configured_repo = false):Promise<number> {
     return await this.d_custom('pull', only_configured_repo);
   }
 
-  async d_push (only_configured_repo = false):number {
+  async d_push (only_configured_repo = false):Promise<number> {
     return await this.d_custom('push', only_configured_repo);
   }
 
-  async d_branch (only_configured_repo = false):number {
+  async d_branch (only_configured_repo = false):Promise<number> {
     return await this.d_custom('branch --show-current', only_configured_repo);
   }
 
-  async d_status (only_configured_repo = false):number {
+  async d_status (only_configured_repo = false):Promise<number> {
     return await this.d_custom('status', only_configured_repo);
   }
 
-  async d_diff (only_configured_repo = false):number {
+  async d_diff (only_configured_repo = false):Promise<number> {
     return await this.d_custom('diff', only_configured_repo);
   }
 
-  async d_log (only_configured_repo = false):number {
+  async d_log (only_configured_repo = false):Promise<number> {
     return await this.d_custom('log -n 3', only_configured_repo);
   }
 
-  async d_remote (only_configured_repo = false):number {
+  async d_remote (only_configured_repo = false):Promise<number> {
     return await this.d_custom('remote -vv', only_configured_repo);
   }
 
-  async d_stash_list (only_configured_repo = false):number {
+  async d_stash_list (only_configured_repo = false):Promise<number> {
     return await this.d_custom('stash list', only_configured_repo);
   }
 
-  async d_clean (only_configured_repo = false):number {
+  async d_clean (only_configured_repo = false):Promise<number> {
     return await this.d_custom('clean -dxf', only_configured_repo);
   }
 
-  async d_export_yaml (yamlPath:string, exact_commit = false):number {
+  async d_export_yaml (yamlPath:string, exact_commit = false):Promise<number> {
     let r_code = -1;
     const repos = this.d_list();
     const repos_info = await get_repos_info(repos);
@@ -397,7 +399,7 @@ class Subg {
     return r_code;
   }
 
-  async validate_yaml (yamlPath:string):number {
+  async validate_yaml (yamlPath:string):Promise<number> {
     return await validate_yaml_external(yamlPath);
   }
 
