@@ -295,49 +295,49 @@ class Subg {
       repos = this.cd_list();
     }
     for (const [idx, localPath] of repos.entries()) {
-      console.log(`===> ${idx+1} - On git-repo  ${localPath}  with command  git ${git_command.join(' ')}`);
-      await git_custom(localPath, git_command);
+      console.log(`===> ${idx+1} - On git-repo  ${localPath}  with command  git ${git_command}`);
+      await git_custom(localPath, git_command.split(' '));
     }
   }
 
   async d_fetch (only_configured_repo = false) {
-    await this.d_custom(['fetch', '--prune'], only_configured_repo);
+    await this.d_custom('fetch --prune', only_configured_repo);
   }
 
   async d_pull (only_configured_repo = false) {
-    await this.d_custom(['pull'], only_configured_repo);
+    await this.d_custom('pull', only_configured_repo);
   }
 
   async d_push (only_configured_repo = false) {
-    await this.d_custom(['push'], only_configured_repo);
+    await this.d_custom('push', only_configured_repo);
   }
 
   async d_branch (only_configured_repo = false) {
-    await this.d_custom(['branch', '--show-current'], only_configured_repo);
+    await this.d_custom('branch --show-current', only_configured_repo);
   }
 
   async d_status (only_configured_repo = false) {
-    await this.d_custom(['status'], only_configured_repo);
+    await this.d_custom('status', only_configured_repo);
   }
 
   async d_diff (only_configured_repo = false) {
-    await this.d_custom(['diff'], only_configured_repo);
+    await this.d_custom('diff', only_configured_repo);
   }
 
   async d_log (only_configured_repo = false) {
-    await this.d_custom(['log', '-n', '3'], only_configured_repo);
+    await this.d_custom('log -n 3', only_configured_repo);
   }
 
   async d_remote (only_configured_repo = false) {
-    await this.d_custom(['remote', '-vv'], only_configured_repo);
+    await this.d_custom('remote -vv', only_configured_repo);
   }
 
   async d_stash_list (only_configured_repo = false) {
-    await this.d_custom(['stash', 'list'], only_configured_repo);
+    await this.d_custom('stash list', only_configured_repo);
   }
 
   async d_clean (only_configured_repo = false) {
-    await this.d_custom(['clean', '-dxf'], only_configured_repo);
+    await this.d_custom('clean -dxf', only_configured_repo);
   }
 
   async d_export_yaml (yamlPath, exact_commit = false) {

@@ -38,8 +38,8 @@ console.log(cnd_list);
 
 await repos.c_clone();
 await repos.cd_checkout();
-await repos.d_custom(['status']);
-await repos.d_custom(['status'], true);
+await repos.d_custom('status');
+await repos.d_custom('status', true);
 await repos.d_fetch();
 await repos.d_pull();
 //await repos.d_push();
