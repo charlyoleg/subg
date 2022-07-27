@@ -7,7 +7,7 @@ import fse from 'fs-extra';
 import YAML from 'yaml';
 import {simpleGit} from 'simple-git';
 
-async function isGitRepo (pathDir2) {
+async function isGitRepo (pathDir2:string):boolean {
   let isRepo = false;
   const subdirs = await fse.readdir(pathDir2, {withFileTypes: true});
   for (const subitem of subdirs) {
@@ -20,7 +20,7 @@ async function isGitRepo (pathDir2) {
   return isRepo;
 }
 
-async function searchGitRepo (pathDir, deepSearch = true) {
+async function searchGitRepo (pathDir:string, deepSearch = true):string[] {
   let r_list = [];
   //console.log("dbg538: current pathDir: " + pathDir);
   const local_list = await fse.readdir(pathDir, {withFileTypes: true});
@@ -45,21 +45,22 @@ async function searchGitRepo (pathDir, deepSearch = true) {
   return r_list;
 }
 
-function array_intersection (arr1, arr2) {
+function array_intersection (arr1:string[], arr2:string[]):string[] {
   return arr1.filter(elem => arr2.includes(elem));
 }
 
-function array_exclude (arr_base, arr_exclude) {
+function array_exclude (arr_base:string[], arr_exclude:string[]):string[] {
   return arr_base.filter(elem => ! arr_exclude.includes(elem));
 }
 
-async function git_clone (localPath, remote_url, version) {
+async function git_clone (localPath:string, remote_url:string, version:string):number {
+  let r_code = -1;
   try {
     if (!fs.existsSync(localPath)) {
       const git = simpleGit();
       const gitlog = await git.clone(remote_url, localPath);
       console.log(gitlog);
-      await git_checkout(localPath, version);
+      r_code = await git_checkout(localPath, version);
     } else {
       const fstat = await fsp.stat(localPath);
       if (fstat.isDirectory()) {
@@ -72,7 +73,7 @@ async function git_clone (localPath, remote_url, version) {
             console.log(`INFO398: the git-repo ${localPath} is already cloned! Then just git-pull!`);
             const gitlog2 = await git2.pull();
             console.log(gitlog2);
-            await git_checkout(localPath, version);
+            r_code = await git_checkout(localPath, version);
           } else {
             console.log(`WARN381: Warning, the git-repo ${localPath} already exist but with an unexpected remote! git-clone/pull aborted!`);
           }
@@ -87,31 +88,45 @@ async function git_clone (localPath, remote_url, version) {
     console.log(`ERR162: Error by cloning ${localPath}  from  ${remote_url}`);
     console.error(error);
   }
+  return r_code;
 }
 
-async function git_checkout (repoPath, version) {
+async function git_checkout (repoPath:string, version:string):number {
+  let r_code = -2;
   try {
     const git = simpleGit(repoPath);
     const gitlog = await git.checkout(version);
     console.log(gitlog);
+    r_code = 0;
   } catch(error) {
     console.log(`ERR523: Error by checkout ${localPath}  for version  ${version}`);
     console.error(error);
   }
+  return r_code;
 }
 
-async function git_custom (repoPath, gitCommand) {
+async function git_custom (repoPath:string, gitCommand:string):number {
+  let r_code = -1;
   try {
     const git = simpleGit(repoPath);
     const gitlog = await git.raw(...gitCommand);
     console.log(gitlog);
+    r_code = 0;
   } catch(error) {
     console.log(`ERR772: Error by git-command ${gitCommand}  on repo  ${repoPath}`);
     console.error(error);
   }
+  return r_code;
 }
 
-async function get_repos_info (repos) {
+interface RepoInfo {
+  localPath: string;
+  url: string;
+  branch: string;
+  commit: string;
+}
+
+async function get_repos_info (repos:string[]):RepoInfo[] {
   let repos_info = [];
   const regex = /^\.\//;
   for (const [idx, localPath] of repos.entries()) {
@@ -139,7 +154,7 @@ async function get_repos_info (repos) {
   return repos_info;
 }
 
-async function validate_yaml_external (yamlPath) {
+async function validate_yaml_external (yamlPath:string):number {
   let fyaml = {};
   try {
     const fstr = await fse.readFile(yamlPath, 'utf-8');
@@ -172,7 +187,18 @@ async function validate_yaml_external (yamlPath) {
   }
 }
 
+interface RepoC {
+  url: string;
+  version: string;
+}
+
 class Subg {
+  discoverDir: string;
+  deepSearch: boolean;
+  importYaml: string;
+  importDir: string;
+  listD: string[];
+  listC: RepoC[];
 
   constructor (discoverDir = '.', deepSearch = true, importYaml='', importDir='') {
     this.discoverDir = discoverDir;
@@ -184,14 +210,14 @@ class Subg {
   }
 
   // this init function cannot be included in the constructor because the constructor can not be async
-  async discover_repos (discoverDir = this.discoverDir, deepSearch = this.deepSearch) {
+  async discover_repos (discoverDir = this.discoverDir, deepSearch = this.deepSearch):void {
     this.discoverDir = discoverDir;
     this.deepSearch = deepSearch;
     this.listD = await searchGitRepo(this.discoverDir, this.deepSearch);
     console.log(`Number of discovered cloned git repos: ${this.listD.length}`);
   }
 
-  async import_yaml (importYaml = this.importYaml, importDir = this.importDir) {
+  async import_yaml (importYaml = this.importYaml, importDir = this.importDir):void {
     this.importYaml = importYaml;
     this.importDir = importDir;
     if (this.importYaml !== '') {
@@ -242,105 +268,112 @@ class Subg {
   async init (discoverDir = this.discoverDir,
               deepSearch = this.deepSearch,
               importYaml = this.importYaml,
-              importDir = this.importDir) {
+              importDir = this.importDir):void {
     await this.discover_repos(discoverDir, deepSearch);
     await this.import_yaml(importYaml, importDir);
   }
 
-  d_list () {
+  d_list ():string[] {
     return this.listD;
   }
 
-  c_list () {
+  c_list ():string[] {
     return Object.keys(this.listC);
   }
 
   // list the git-repos which are in the D-list and in the C-list
-  cd_list () {
+  cd_list ():string[] {
     return array_intersection(this.listD, Object.keys(this.listC));
   }
 
   // list the git-repos which are in the D-list but not in the C-list
   // D not C
-  dnc_list () {
+  dnc_list ():string[] {
     return array_exclude(this.listD, Object.keys(this.listC));
   }
 
   // list the git-repos which are in the C-list but not in the D-list
   // C not D
-  cnd_list () {
+  cnd_list ():string[] {
     return array_exclude(Object.keys(this.listC), this.listD);
   }
 
-  async c_clone () {
+  async c_clone ():number {
+    let r_code = 0;
     for (const [idx, localPath] of Object.keys(this.listC).entries()) {
       const repo = this.listC[localPath];
       console.log(`===> ${idx+1} - clone  ${localPath}  from  ${repo.url}  at version  ${repo.version}`);
-      await git_clone(localPath, repo.url, repo.verison);
+      r_code += await git_clone(localPath, repo.url, repo.verison);
     }
+    return r_code;
   }
 
   async cd_checkout () {
+    let r_code = 0;
     const list_cd = this.cd_list();
     for (const [idx, localPath] of list_cd.entries()) {
       const repo = this.listC[localPath];
       console.log(`===> ${idx+1} - checkout  ${localPath}  at version  ${repo.version}`);
-      await git_checkout(localPath, repo.verison);
+      r_code += await git_checkout(localPath, repo.verison);
     }
+    return r_code;
   }
 
-  async d_custom (git_command, only_configured_repo = false) {
+  async d_custom (git_command:string, only_configured_repo = false):number {
+    let r_code = 0;
     let repos = this.d_list();
     if (only_configured_repo) {
       repos = this.cd_list();
     }
     for (const [idx, localPath] of repos.entries()) {
       console.log(`===> ${idx+1} - On git-repo  ${localPath}  with command  git ${git_command}`);
-      await git_custom(localPath, git_command.split(' '));
+      r_code += await git_custom(localPath, git_command.split(' '));
     }
+    return r_code;
   }
 
-  async d_fetch (only_configured_repo = false) {
-    await this.d_custom('fetch --prune', only_configured_repo);
+  async d_fetch (only_configured_repo = false):number {
+    return await this.d_custom('fetch --prune', only_configured_repo);
   }
 
-  async d_pull (only_configured_repo = false) {
-    await this.d_custom('pull', only_configured_repo);
+  async d_pull (only_configured_repo = false):number {
+    return await this.d_custom('pull', only_configured_repo);
   }
 
-  async d_push (only_configured_repo = false) {
-    await this.d_custom('push', only_configured_repo);
+  async d_push (only_configured_repo = false):number {
+    return await this.d_custom('push', only_configured_repo);
   }
 
-  async d_branch (only_configured_repo = false) {
-    await this.d_custom('branch --show-current', only_configured_repo);
+  async d_branch (only_configured_repo = false):number {
+    return await this.d_custom('branch --show-current', only_configured_repo);
   }
 
-  async d_status (only_configured_repo = false) {
-    await this.d_custom('status', only_configured_repo);
+  async d_status (only_configured_repo = false):number {
+    return await this.d_custom('status', only_configured_repo);
   }
 
-  async d_diff (only_configured_repo = false) {
-    await this.d_custom('diff', only_configured_repo);
+  async d_diff (only_configured_repo = false):number {
+    return await this.d_custom('diff', only_configured_repo);
   }
 
-  async d_log (only_configured_repo = false) {
-    await this.d_custom('log -n 3', only_configured_repo);
+  async d_log (only_configured_repo = false):number {
+    return await this.d_custom('log -n 3', only_configured_repo);
   }
 
-  async d_remote (only_configured_repo = false) {
-    await this.d_custom('remote -vv', only_configured_repo);
+  async d_remote (only_configured_repo = false):number {
+    return await this.d_custom('remote -vv', only_configured_repo);
   }
 
-  async d_stash_list (only_configured_repo = false) {
-    await this.d_custom('stash list', only_configured_repo);
+  async d_stash_list (only_configured_repo = false):number {
+    return await this.d_custom('stash list', only_configured_repo);
   }
 
-  async d_clean (only_configured_repo = false) {
-    await this.d_custom('clean -dxf', only_configured_repo);
+  async d_clean (only_configured_repo = false):number {
+    return await this.d_custom('clean -dxf', only_configured_repo);
   }
 
-  async d_export_yaml (yamlPath, exact_commit = false) {
+  async d_export_yaml (yamlPath:string, exact_commit = false):number {
+    let r_code = -1;
     const repos = this.d_list();
     const repos_info = await get_repos_info(repos);
     let fyaml = { 'repositories': {} };
@@ -355,18 +388,20 @@ class Subg {
     const fstr = YAML.stringify(fyaml);
     try {
       await fse.outputFile(yamlPath, fstr);
+      r_code = 0;
     } catch(error) {
       console.log(`ERR218: Error by writting the yaml-file ${yamlPath}!`);
       console.error(error);
     }
     console.log(`The yaml-file ${yamlPath} has been written!`);
+    return r_code;
   }
 
-  async validate_yaml (yamlPath) {
+  async validate_yaml (yamlPath:string):number {
     return await validate_yaml_external(yamlPath);
   }
 
-  static version () {
+  static version ():string {
     const VERSION_MAJOR = 0;
     const VERSION_MINOR = 0;
     const VERSION_HOTFIX = 0;
