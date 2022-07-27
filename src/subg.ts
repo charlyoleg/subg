@@ -144,7 +144,7 @@ async function get_repos_info (repos:string[]):Promise<RepoInfo[]> {
       const branch_current = branch.current;
       const commit = await git.log();
       //console.log(commit);
-      const commit_hash = commit.latest.hash;
+      const commit_hash = commit.latest!.hash;
       const info = { 'localPath': localPath2, 'url': remote_url, 'branch': branch_current, 'commit': commit_hash};
       //console.log(info);
       repos_info.push(info);
@@ -200,7 +200,7 @@ class Subg {
   importYaml: string;
   importDir: string;
   listD: string[];
-  listC: RepoC[];
+  listC: { [p:string] : RepoC };
 
   constructor (discoverDir = '.', deepSearch = true, importYaml='', importDir='') {
     this.discoverDir = discoverDir;
@@ -305,7 +305,7 @@ class Subg {
     for (const [idx, localPath] of Object.keys(this.listC).entries()) {
       const repo = this.listC[localPath];
       console.log(`===> ${idx+1} - clone  ${localPath}  from  ${repo.url}  at version  ${repo.version}`);
-      r_code += await git_clone(localPath, repo.url, repo.verison);
+      r_code += await git_clone(localPath, repo.url, repo.version);
     }
     return r_code;
   }
@@ -316,7 +316,7 @@ class Subg {
     for (const [idx, localPath] of list_cd.entries()) {
       const repo = this.listC[localPath];
       console.log(`===> ${idx+1} - checkout  ${localPath}  at version  ${repo.version}`);
-      r_code += await git_checkout(localPath, repo.verison);
+      r_code += await git_checkout(localPath, repo.version);
     }
     return r_code;
   }
@@ -378,7 +378,7 @@ class Subg {
     let r_code = -1;
     const repos = this.d_list();
     const repos_info = await get_repos_info(repos);
-    let fyaml = { 'repositories': {} };
+    let fyaml:any = { 'repositories': {} };
     for (const repo of repos_info) {
       let version = repo.branch;
       if (exact_commit) {
