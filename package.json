@@ -4,6 +4,7 @@
   "description": "api and cli for managing sub-git-repositories",
   "type": "module",
   "main": "./dist/subg-api.js",
+  "types": "./dist/subg-api.d.ts",
   "bin": {
     "subg": "./dist/subg-cli.js",
     "subgg": "./dist/subgg-cli.js"
