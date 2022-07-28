@@ -3,11 +3,20 @@
   "version": "0.0.1",
   "description": "api and cli for managing sub-git-repositories",
   "type": "module",
-  "main": "index.js",
+  "main": "./dist/subg-api.js",
+  "bin": {
+    "subg": "./dist/subg-cli.js",
+    "subgg": "./dist/subgg-cli.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ],
   "scripts": {
     "dev": "tsc --build --watch",
     "build": "tsc --build",
     "test": "node build/tests/subg.test.js",
+    "clean": "fse",
     "dist:build": "tsc --build tsconfig.dist.json"
   },
   "repository": {
@@ -16,7 +25,13 @@
   },
   "keywords": [
     "git",
-    "sub-repo"
+    "sub-repo",
+    "multi-repo",
+    "submodule",
+    "subtree",
+    "vcs",
+    "vcstool",
+    "repositories"
   ],
   "author": "charlyoleg",
   "license": "ISC",
