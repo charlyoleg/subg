@@ -2,11 +2,11 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "outDir": "./dist",
+    "outDir": "./build",
     "esModuleInterop": true,
     "moduleResolution": "node",
     "declaration": true,
     "strict": true
   },
-  "include": ["src", "tests"]
+  "include": ["./src", "./tests"]
 }
