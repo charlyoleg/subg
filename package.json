@@ -19,11 +19,13 @@
   "scripts": {
     "dev": "tsc --build --watch",
     "build": "tsc --build",
-    "test": "node build/tests/subg.test.js",
     "clean": "fse remove build",
+    "test:basic": "node build/tests/subg.test.js",
+    "test": "run-s test:basic",
+    "test:clean": "fse remove tmp",
     "dist:build": "tsc --build tsconfig.dist.json",
     "dist:clean": "fse remove dist",
-    "clean_all": "run-s clean dist:clean"
+    "clean_all": "run-s clean dist:clean test:clean"
   },
   "repository": {
     "type": "git",
