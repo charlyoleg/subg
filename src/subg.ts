@@ -6,6 +6,8 @@ import fsp from 'node:fs/promises';
 import fse from 'fs-extra';
 import YAML from 'yaml';
 import {simpleGit} from 'simple-git';
+import {pkg_name, pkg_version} from './version_info.js';
+
 
 async function isGitRepo (pathDir2:string):Promise<boolean> {
   let isRepo = false;
@@ -404,19 +406,14 @@ class Subg {
   }
 
   static version ():string {
-    const VERSION_MAJOR = 0;
-    const VERSION_MINOR = 0;
-    const VERSION_HOTFIX = 0;
     const build_number = 0;
     const repoName = 'abc';
     const gitHash = '123';
     const date = '567';
     let ver = '';
-    ver += VERSION_MAJOR.toString();
-    ver += '.' + VERSION_MINOR.toString();
-    ver += '.' + VERSION_HOTFIX.toString();
+    ver += pkg_name;
+    ver += '_' + pkg_version;
     ver += '.' + build_number.toString();
-    ver += '_' + repoName;
     ver += '_' + gitHash;
     ver += '_' + date;
     return ver;

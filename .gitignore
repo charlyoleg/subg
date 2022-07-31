@@ -1,5 +1,6 @@
 # .gitignore of subg
 node_modules
+src/version_info.ts
 build
 dist
 tmp
