@@ -33,7 +33,8 @@ console.log(cnd_list);
 //await repos.d_export_yaml('tmp/exported_repos_2.yml', true);
 //const validation_result2 = await repos.validate_yaml('tests/test_repos_3.yml');
 //console.log(validation_result2);
-//console.log(`subg-verison: ${Subg.version()}`);
+//console.log(`subg-version-short : ${Subg.version_short()}`);
+//console.log(`subg-version-long  : ${Subg.version_long()}`);
 //process.exit(0);
 
 await repos.c_clone();
@@ -56,5 +57,6 @@ await repos.d_export_yaml('tmp/exported_repos_2.yml', true);
 const validation_result = await repos.validate_yaml('tests/test_repos_3.yml');
 console.log(validation_result);
 
-console.log(`subg-verison: ${Subg.version()}`);
+console.log(`subg-version-short : ${Subg.version_short()}`);
+console.log(`subg-version-long  : ${Subg.version_long()}`);
 
