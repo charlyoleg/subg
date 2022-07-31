@@ -17,12 +17,15 @@
     "node": ">=16.12.0"
   },
   "scripts": {
+    "predev": "run-s prebuild",
     "dev": "tsc --build --watch",
+    "prebuild": "node scr/generate_version_info.js",
     "build": "tsc --build",
     "clean": "fse remove build",
     "test:basic": "node build/tests/subg.test.js",
     "test": "run-s test:basic",
     "test:clean": "fse remove tmp",
+    "predist:build": "run-s prebuild",
     "dist:build": "tsc --build tsconfig.dist.json",
     "dist:clean": "fse remove dist",
     "clean_all": "run-s clean dist:clean test:clean"
