@@ -108,6 +108,24 @@ async function git_checkout (repoPath:string, version:string):Promise<number> {
   return r_code;
 }
 
+async function git_verify (repoPath:string, remote_url:string, version:string):Promise<number> {
+  let r_code = 0;
+  const one_info = await one_repo_info(repoPath);
+  if (one_info.url === remote_url) {
+    console.log(`remote_url: Ok`);
+  } else {
+    console.log(`remote_url: Nok   ${remote_url} versus ${one_info.url}`);
+    r_code = -1;
+  }
+  if ((one_info.branch === version)||(one_info.commit === version)) {
+    console.log(`version: Ok`);
+  } else {
+    console.log(`version: Nok   ${version} versus ${one_info.branch} versus ${one_info.commit}`);
+    r_code = -1;
+  }
+  return r_code;
+}
+
 async function git_custom (repoPath:string, gitCommand:string):Promise<number> {
   let r_code = -1;
   try {
@@ -130,30 +148,37 @@ interface RepoInfo {
   commit: string;
 }
 
+async function one_repo_info (localPath:string):Promise<RepoInfo> {
+  let one_info = { 'localPath': 'undefined', 'url': 'undefined', 'branch': 'undefined', 'commit': 'undefined'};
+  const regex = /^\.\//;
+  const localPath2 = localPath.replace(regex, '');
+  try {
+    const git = simpleGit(localPath);
+    const remote = await git.getRemotes(true);
+    //console.log(remote);
+    const remote_url = remote[0].refs.fetch;
+    const branch = await git.branch();
+    //console.log(branch);
+    const branch_current = branch.current;
+    const commit = await git.log();
+    //console.log(commit);
+    const commit_hash = commit.latest!.hash;
+    one_info = { 'localPath': localPath2, 'url': remote_url, 'branch': branch_current, 'commit': commit_hash};
+    //console.log(info);
+  } catch(error) {
+    console.log(`ERR398: Error by git-operations on repo  ${localPath}`);
+    console.error(error);
+  }
+  return one_info;
+}
+
 async function get_repos_info (repos:string[]):Promise<RepoInfo[]> {
   let repos_info = [];
-  const regex = /^\.\//;
   for (const [idx, localPath] of repos.entries()) {
     console.log(`===> ${idx+1} - get info of git-repo  ${localPath}`);
-    const localPath2 = localPath.replace(regex, '');
-    try {
-      const git = simpleGit(localPath);
-      const remote = await git.getRemotes(true);
-      //console.log(remote);
-      const remote_url = remote[0].refs.fetch;
-      const branch = await git.branch();
-      //console.log(branch);
-      const branch_current = branch.current;
-      const commit = await git.log();
-      //console.log(commit);
-      const commit_hash = commit.latest!.hash;
-      const info = { 'localPath': localPath2, 'url': remote_url, 'branch': branch_current, 'commit': commit_hash};
-      //console.log(info);
-      repos_info.push(info);
-    } catch(error) {
-      console.log(`ERR398: Error by git-operations on repo  ${localPath}`);
-      console.error(error);
-    }
+    const one_info = await one_repo_info(localPath);
+    //console.log(info);
+    repos_info.push(one_info);
   }
   return repos_info;
 }
@@ -320,6 +345,18 @@ class Subg {
       console.log(`===> ${idx+1} - checkout  ${localPath}  at version  ${repo.version}`);
       r_code += await git_checkout(localPath, repo.version);
     }
+    return r_code;
+  }
+
+  async cd_verify ():Promise<number> {
+    let r_code = 0;
+    const list_cd = this.cd_list();
+    for (const [idx, localPath] of list_cd.entries()) {
+      const repo = this.listC[localPath];
+      console.log(`===> ${idx+1} - verify  ${localPath}`);
+      r_code += await git_verify(localPath, repo.url, repo.version);
+    }
+    console.log(`Verify ${list_cd.length} repos : ${list_cd.length - Math.abs(r_code)} Ok, ${Math.abs(r_code)} Nok`);
     return r_code;
   }
 

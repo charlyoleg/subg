@@ -39,6 +39,7 @@ console.log(cnd_list);
 
 await repos.c_clone();
 await repos.cd_checkout();
+await repos.cd_verify();
 await repos.d_custom('status');
 await repos.d_custom('status', true);
 await repos.d_fetch();
