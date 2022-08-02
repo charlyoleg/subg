@@ -65,10 +65,10 @@ const argv = yargs(hideBin(process.argv))
   .command('clone', 'clone the git-repositories listed in the importYaml file', {},
     (a_argv) => { cmd.clone = true; }
   )
-  .command('checkout', 'checkout the git-repositories to the version listed in the importYaml file', {},
+  .command('checkout', 'checkout the git-repos according to the importYaml file', {},
     (a_argv) => { cmd.checkout = true; }
   )
-  .command('verify', 'verify if the discovered git-repositories matched with the importYaml file', {},
+  .command('verify', 'verify if the discovered git-repos fit with the importYaml', {},
     (a_argv) => { cmd.verify = true; }
   )
   .command('fetch', 'git fetch --prune the discovered git-repositories', {},
@@ -101,7 +101,7 @@ const argv = yargs(hideBin(process.argv))
   .command('clean', 'git clean -dxf of the discovered git-repositories', {},
     (a_argv) => { cmd.clean = true; }
   )
-  .command('custom', 'git custom command for each of the discovered git-repositories', {},
+  .command('custom', 'git custom command for each of the discovered git-repos', {},
     (a_argv) => { cmd.custom = true; }
   )
   .command('export_yaml', 'export the discovered git-repositories in a yaml-file', {},
@@ -125,8 +125,8 @@ const argv2:any = argv; // workaround for typescript error
 //console.log(argv2.deepSearch);
 //console.log(argv2.importYaml);
 //console.log(argv2.importDir);
-const repos = new Subg(argv2.discoverDir, argv2.deepSearch, argv2.importYaml, argv2.importDir);
-await repos.init();
+const subg = new Subg(argv2.discoverDir, argv2.deepSearch, argv2.importYaml, argv2.importDir);
+await subg.init();
 
 function display_repo_list(repos:string[]):void {
   for (const [idx, repo] of repos.entries()) {
@@ -135,11 +135,11 @@ function display_repo_list(repos:string[]):void {
 }
 
 if (cmd.list) {
-  const d_list = repos.d_list();
-  const c_list = repos.c_list();
-  const cd_list = repos.cd_list();
-  const dnc_list = repos.dnc_list();
-  const cnd_list = repos.cnd_list();
+  const d_list = subg.d_list();
+  const c_list = subg.c_list();
+  const cd_list = subg.cd_list();
+  const dnc_list = subg.dnc_list();
+  const cnd_list = subg.cnd_list();
   console.log(`List-D : ${d_list.length} discovered git-repositories`);
   display_repo_list(d_list);
   console.log(`List-C : ${c_list.length} configured git-repositories`);
@@ -152,22 +152,22 @@ if (cmd.list) {
   display_repo_list(cnd_list);
 }
 
-if (cmd.clone) { await repos.c_clone(); }
-if (cmd.checkout) { await repos.cd_checkout(); }
-if (cmd.verify) { await repos.cd_verify(); }
-if (cmd.fetch) { await repos.d_fetch(); }
-if (cmd.pull) { await repos.d_pull(); }
-if (cmd.push) { await repos.d_push(); }
-if (cmd.branch) { await repos.d_branch(); }
-if (cmd.status) { await repos.d_status(); }
-if (cmd.diff) { await repos.d_diff(); }
-if (cmd.log) { await repos.d_log(); }
-if (cmd.remote) { await repos.d_remote(); }
-if (cmd.stash_list) { await repos.d_stash_list(); }
-//if (cmd.clean) { await repos.clean(); }
-//if (cmd.custom) { await repos.d_custom(); }
-//if (cmd.export_yaml) { await repos.d_export_yaml(); }
-//if (cmd.validate_yaml) { await repos.validate_yaml(); }
+if (cmd.clone) { await subg.c_clone(); }
+if (cmd.checkout) { await subg.cd_checkout(); }
+if (cmd.verify) { await subg.cd_verify(); }
+if (cmd.fetch) { await subg.d_fetch(); }
+if (cmd.pull) { await subg.d_pull(); }
+if (cmd.push) { await subg.d_push(); }
+if (cmd.branch) { await subg.d_branch(); }
+if (cmd.status) { await subg.d_status(); }
+if (cmd.diff) { await subg.d_diff(); }
+if (cmd.log) { await subg.d_log(); }
+if (cmd.remote) { await subg.d_remote(); }
+if (cmd.stash_list) { await subg.d_stash_list(); }
+//if (cmd.clean) { await subg.clean(); }
+//if (cmd.custom) { await subg.d_custom(); }
+//if (cmd.export_yaml) { await subg.d_export_yaml(); }
+//if (cmd.validate_yaml) { await subg.validate_yaml(); }
 
 if (cmd.versions) {
   console.log(`subg-version-short : ${Subg.version_short()}`);
