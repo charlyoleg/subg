@@ -263,7 +263,7 @@ class Subg {
       if (this.importDir !== '') {
         baseDir = this.importDir;
       }
-      if (!['', '.'].includes(baseDir)) {
+      if (['', '.'].includes(baseDir)) {
         baseDir = '';
       } else {
         const regex_trailingSlash = /\/$/;
