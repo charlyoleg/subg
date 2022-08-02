@@ -21,14 +21,12 @@
     "dev": "tsc --build --watch",
     "prebuild": "node scr/generate_version_info.js",
     "build": "tsc --build",
-    "clean": "fse remove build",
+    "clean": "rimraf build dist tmp",
     "test:basic": "node build/tests/subg.test.js",
     "test": "run-s test:basic",
-    "test:clean": "fse remove tmp",
     "predist:build": "run-s prebuild",
     "dist:build": "tsc --build tsconfig.dist.json",
-    "dist:clean": "fse remove dist",
-    "clean_all": "run-s clean dist:clean test:clean"
+    "clean_all": "run-s clean"
   },
   "repository": {
     "type": "git",
@@ -57,12 +55,12 @@
     "yargs": "^17.5.1"
   },
   "devDependencies": {
-    "@atao60/fse-cli": "^0.1.7",
     "@types/fs-extra": "^9.0.13",
     "@types/node": "^18.6.1",
     "@types/yargs": "^17.0.10",
     "dateformat": "^5.0.3",
     "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2",
     "typescript": "^4.7.4"
   }
 }
