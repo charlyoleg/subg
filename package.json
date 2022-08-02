@@ -23,7 +23,8 @@
     "build": "tsc --build",
     "clean": "rimraf build dist tmp",
     "test:basic": "node build/tests/subg.test.js",
-    "test": "run-s test:basic",
+    "test:cli": "tests/subg-cli.test.sh",
+    "test": "run-s test:basic test:cli",
     "predist:build": "run-s prebuild",
     "dist:build": "tsc --build tsconfig.dist.json",
     "clean_all": "run-s clean"
