@@ -34,7 +34,13 @@ let cmd = {
 
 const argv = yargs(hideBin(process.argv))
   .scriptName("subg")
-  .usage("Usage: $0 --importYaml repos.yml clone")
+  .usage("Usage: $0 <global-options> command <command-options>")
+  .example([
+    ["$0 clone --importYaml repos.yml --importDir subRepos", "clone the git-repos listed in repos.yml in the directory subRepos"],
+    ["$0 status --discoverDir=subRepos", "show the status of all discovered git-repos with the directory subRepos"],
+    ["$0 custom --git_command 'log -u -n1'", "apply the cutom-command git-log to all discovered git-repos"],
+    ["$0 export_yaml --yaml_path=myRepos.yml --commit_version=true", "export the discovered git-repos in the yaml-file myRepos.yml"]
+    ])
   .option('discoverDir', {
     alias: 'd',
     type: 'string',
