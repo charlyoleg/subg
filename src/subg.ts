@@ -216,6 +216,15 @@ async function validate_yaml_external (yamlPath:string):Promise<number> {
   }
 }
 
+function isPathAbsolute(path: string):boolean {
+  let r_absolute = false;
+  const regex_slash = /^\//;
+  if (regex_slash.test(path)) {
+    r_absolute = true;
+  }
+  return r_absolute;
+}
+
 interface RepoC {
   url: string;
   version: string;
@@ -254,23 +263,31 @@ class Subg {
       if (this.importDir !== '') {
         baseDir = this.importDir;
       }
+      if (!['', '.'].includes(baseDir)) {
+        baseDir = '';
+      } else {
+        const regex_trailingSlash = /\/$/;
+        if (!regex_trailingSlash.test(baseDir)) {
+          baseDir = baseDir + '/';
+	}
+      }
       //console.log(baseDir);
       let list_non_git = [];
       try {
         const fstr = await fse.readFile(this.importYaml, 'utf-8');
         const fyaml = YAML.parse(fstr);
         //console.log(fyaml);
-        const regex = /^\./;
+        const regex_pointSlash = /^\.\//;
         for (const repoDir in fyaml.repositories) {
           //console.log(repoDir);
           // repoDir2 unifies the path format with the discovered git-repos
           let repoDir2 = repoDir;
-          if (!['', '.'].includes(baseDir)) {
-            repoDir2 = baseDir + '/' + repoDir;
-          }
-          if (!regex.test(repoDir2)) {
-            repoDir2 = './' + repoDir2;
-          }
+	  if (!isPathAbsolute(repoDir2)) {
+            repoDir2 = baseDir + repoDir;
+            if (!regex_pointSlash.test(repoDir2)) {
+              repoDir2 = './' + repoDir2;
+            }
+	  }
           //console.log(fyaml.repositories[repoDir].type);
           if (!fyaml.repositories[repoDir].hasOwnProperty('type')
              || (fyaml.repositories[repoDir].type === "git")) {
