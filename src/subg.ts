@@ -9,6 +9,9 @@ import {simpleGit} from 'simple-git';
 import {subg_version_short, subg_version_long} from './version_info.js';
 
 
+const regex_pointSlash = /^\.\//;
+const regex_trailingSlash = /\/$/;
+
 async function isGitRepo (pathDir2:string):Promise<boolean> {
   let isRepo = false;
   const subdirs = await fse.readdir(pathDir2, {withFileTypes: true});
@@ -150,8 +153,7 @@ interface RepoInfo {
 
 async function one_repo_info (localPath:string):Promise<RepoInfo> {
   let one_info = { 'localPath': 'undefined', 'url': 'undefined', 'branch': 'undefined', 'commit': 'undefined'};
-  const regex = /^\.\//;
-  const localPath2 = localPath.replace(regex, '');
+  const localPath2 = localPath.replace(regex_pointSlash, '');
   try {
     const git = simpleGit(localPath);
     const remote = await git.getRemotes(true);
@@ -251,6 +253,28 @@ class Subg {
   async discover_repos (discoverDir = this.discoverDir, deepSearch = this.deepSearch):Promise<number> {
     this.discoverDir = discoverDir;
     this.deepSearch = deepSearch;
+    // check if empty string
+    if (this.discoverDir === '') {
+      console.log(`ERR282: Error, the discoverDir cannot be an empty string`);
+      return -1;
+    }
+    // normalize path
+    if (!isPathAbsolute(this.discoverDir)) {
+      if (!regex_pointSlash.test(this.discoverDir)
+        && (this.discoverDir !== '.')) {
+        this.discoverDir = './' + this.discoverDir;
+      }
+    }
+    this.discoverDir = this.discoverDir.replace(regex_trailingSlash, '');
+    console.log(this.discoverDir);
+    // check if the path exist
+    try {
+      await fse.readdir(this.discoverDir, {withFileTypes: true});
+    } catch(err) {
+      console.log(`ERR638: Error, the path ${this.discoverDir} doesn't exist!`);
+      console.log(err);
+      return -1;
+    }
     this.listD = await searchGitRepo(this.discoverDir, this.deepSearch);
     console.log(`Number of discovered cloned git repos: ${this.listD.length}`);
     return 0;
@@ -268,7 +292,6 @@ class Subg {
       if (['', '.'].includes(baseDir)) {
         baseDir = '';
       } else {
-        const regex_trailingSlash = /\/$/;
         if (!regex_trailingSlash.test(baseDir)) {
           baseDir = baseDir + '/';
 	}
@@ -279,7 +302,6 @@ class Subg {
         const fstr = await fse.readFile(this.importYaml, 'utf-8');
         const fyaml = YAML.parse(fstr);
         //console.log(fyaml);
-        const regex_pointSlash = /^\.\//;
         for (const repoDir in fyaml.repositories) {
           //console.log(repoDir);
           // repoDir2 unifies the path format with the discovered git-repos
@@ -320,10 +342,6 @@ class Subg {
               importYaml = this.importYaml,
               importDir = this.importDir):Promise<number> {
     let r_code = 0;
-    if (discoverDir === '') {
-      console.log(`ERR282: Error, the discoverDir cannot be an empty string`);
-      return -1;
-    }
     r_code += await this.discover_repos(discoverDir, deepSearch);
     r_code += await this.import_yaml(importYaml, importDir);
     return r_code;
