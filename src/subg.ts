@@ -433,14 +433,14 @@ class Subg {
     return await this.d_custom('clean -dxf', only_configured_repo);
   }
 
-  async d_export_yaml (yamlPath:string, exact_commit = false):Promise<number> {
+  async d_export_yaml (yamlPath:string, commit_version = false):Promise<number> {
     let r_code = -1;
     const repos = this.d_list();
     const repos_info = await get_repos_info(repos);
     let fyaml:any = { 'repositories': {} };
     for (const repo of repos_info) {
       let version = repo.branch;
-      if (exact_commit) {
+      if (commit_version) {
         version = repo.commit;
       }
       fyaml.repositories[repo.localPath] = { 'type':'git', 'url': repo.url, 'version': version };

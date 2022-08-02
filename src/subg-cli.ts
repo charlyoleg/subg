@@ -59,6 +59,12 @@ const argv = yargs(hideBin(process.argv))
     description: 'path to the directory where to clone the repos. If not specified, the directory of the yaml-file is used.',
     default: ''
     })
+  .option('only_configured', {
+    alias: 'c',
+    type: 'boolean',
+    description: 'not on all discovered git-repos but only if in importYaml',
+    default: false
+    })
   .command('list', 'print the lists of git-repositories', {},
     (a_argv) => { cmd.list = true; }
   )
@@ -101,13 +107,39 @@ const argv = yargs(hideBin(process.argv))
   .command('clean', 'git clean -dxf of the discovered git-repositories', {},
     (a_argv) => { cmd.clean = true; }
   )
-  .command('custom', 'git custom command for each of the discovered git-repos', {},
+  .command('custom', 'git custom command for each of the discovered git-repos',
+    {
+      git_command: {
+        type: 'string',
+	description: 'the git-command to be apply',
+	demandOption: true
+      }
+    },
     (a_argv) => { cmd.custom = true; }
   )
-  .command('export_yaml', 'export the discovered git-repositories in a yaml-file', {},
+  .command('export_yaml', 'export the discovered git-repositories in a yaml-file',
+    {
+      yaml_path: {
+        type: 'string',
+	description: 'the path to the output yaml-file',
+	demandOption: true
+      },
+      commit_version: {
+        type: 'boolean',
+	description: 'Use commit-hash instead of branch-name for version',
+	default: false
+      }
+    },
     (a_argv) => { cmd.export_yaml = true; }
   )
-  .command('validate_yaml', 'validate the syntax of a yaml-file', {},
+  .command('validate_yaml', 'validate the syntax of a yaml-file',
+    {
+      yaml_path: {
+        type: 'string',
+	description: 'the path to the output yaml-file',
+	demandOption: true
+      }
+    },
     (a_argv) => { cmd.validate_yaml = true; }
   )
   .command('versions', 'print the versions of subg', {},
@@ -155,19 +187,19 @@ if (cmd.list) {
 if (cmd.clone) { await subg.c_clone(); }
 if (cmd.checkout) { await subg.cd_checkout(); }
 if (cmd.verify) { await subg.cd_verify(); }
-if (cmd.fetch) { await subg.d_fetch(); }
-if (cmd.pull) { await subg.d_pull(); }
-if (cmd.push) { await subg.d_push(); }
-if (cmd.branch) { await subg.d_branch(); }
-if (cmd.status) { await subg.d_status(); }
-if (cmd.diff) { await subg.d_diff(); }
-if (cmd.log) { await subg.d_log(); }
-if (cmd.remote) { await subg.d_remote(); }
-if (cmd.stash_list) { await subg.d_stash_list(); }
-//if (cmd.clean) { await subg.clean(); }
-//if (cmd.custom) { await subg.d_custom(); }
-//if (cmd.export_yaml) { await subg.d_export_yaml(); }
-//if (cmd.validate_yaml) { await subg.validate_yaml(); }
+if (cmd.fetch) { await subg.d_fetch(argv2.only_configured); }
+if (cmd.pull) { await subg.d_pull(argv2.only_configured); }
+if (cmd.push) { await subg.d_push(argv2.only_configured); }
+if (cmd.branch) { await subg.d_branch(argv2.only_configured); }
+if (cmd.status) { await subg.d_status(argv2.only_configured); }
+if (cmd.diff) { await subg.d_diff(argv2.only_configured); }
+if (cmd.log) { await subg.d_log(argv2.only_configured); }
+if (cmd.remote) { await subg.d_remote(argv2.only_configured); }
+if (cmd.stash_list) { await subg.d_stash_list(argv2.only_configured); }
+if (cmd.clean) { await subg.d_clean(argv2.only_configured); }
+if (cmd.custom) { await subg.d_custom(argv2.git_command, argv2.only_configured); }
+if (cmd.export_yaml) { await subg.d_export_yaml(argv2.yaml_path, argv2.commit_version); }
+if (cmd.validate_yaml) { await subg.validate_yaml(argv2.yaml_path); }
 
 if (cmd.versions) {
   console.log(`subg-version-short : ${Subg.version_short()}`);
