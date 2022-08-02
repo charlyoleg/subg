@@ -248,14 +248,16 @@ class Subg {
   }
 
   // this init function cannot be included in the constructor because the constructor can not be async
-  async discover_repos (discoverDir = this.discoverDir, deepSearch = this.deepSearch):Promise<void> {
+  async discover_repos (discoverDir = this.discoverDir, deepSearch = this.deepSearch):Promise<number> {
     this.discoverDir = discoverDir;
     this.deepSearch = deepSearch;
     this.listD = await searchGitRepo(this.discoverDir, this.deepSearch);
     console.log(`Number of discovered cloned git repos: ${this.listD.length}`);
+    return 0;
   }
 
-  async import_yaml (importYaml = this.importYaml, importDir = this.importDir):Promise<void> {
+  async import_yaml (importYaml = this.importYaml, importDir = this.importDir):Promise<number> {
+    let r_code = 0;
     this.importYaml = importYaml;
     this.importDir = importDir;
     if (this.importYaml !== '') {
@@ -302,6 +304,7 @@ class Subg {
       } catch(error) {
         console.log(`ERR826: Error, the imported-yaml-file ${this.importYaml} is not valid!`);
         console.error(error);
+	r_code = -1;
       }
       console.log(`From imported Yaml, number of git-repos: ${Object.keys(this.listC).length}`);
       console.log(`From imported Yaml, number of excluded repos: ${list_non_git.length}`);
@@ -309,14 +312,21 @@ class Subg {
         console.log(`  ${(idx+1).toString().padStart(3,' ')} - Excluded repo: ${repoDir}`);
       }
     }
+    return r_code;
   }
 
   async init (discoverDir = this.discoverDir,
               deepSearch = this.deepSearch,
               importYaml = this.importYaml,
-              importDir = this.importDir):Promise<void> {
-    await this.discover_repos(discoverDir, deepSearch);
-    await this.import_yaml(importYaml, importDir);
+              importDir = this.importDir):Promise<number> {
+    let r_code = 0;
+    if (discoverDir === '') {
+      console.log(`ERR282: Error, the discoverDir cannot be an empty string`);
+      return -1;
+    }
+    r_code += await this.discover_repos(discoverDir, deepSearch);
+    r_code += await this.import_yaml(importYaml, importDir);
+    return r_code;
   }
 
   d_list ():string[] {
@@ -435,6 +445,10 @@ class Subg {
 
   async d_export_yaml (yamlPath:string, commit_version = false):Promise<number> {
     let r_code = -1;
+    if (yamlPath === '') {
+      console.log(`ERR482: Error, the discoverDir cannot be an empty string`);
+      return -1;
+    }
     const repos = this.d_list();
     const repos_info = await get_repos_info(repos);
     let fyaml:any = { 'repositories': {} };
@@ -459,6 +473,10 @@ class Subg {
   }
 
   async validate_yaml (yamlPath:string):Promise<number> {
+    if (yamlPath === '') {
+      console.log(`ERR482: Error, the discoverDir cannot be an empty string`);
+      return -1;
+    }
     return await validate_yaml_external(yamlPath);
   }
 
