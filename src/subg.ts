@@ -373,7 +373,10 @@ class Subg {
       console.log(`===> ${idx+1} - verify  ${localPath}`);
       r_code += await git_verify(localPath, repo.url, repo.version);
     }
-    console.log(`Verify ${list_cd.length} repos : ${list_cd.length - Math.abs(r_code)} Ok, ${Math.abs(r_code)} Nok`);
+    const all_nb = list_cd.length;
+    const nok_nb = Math.abs(r_code);
+    const ok_nb = all_nb - nok_nb;
+    console.log(`Verify ${all_nb} repos : ${ok_nb} Ok, ${nok_nb} Nok`);
     return r_code;
   }
 
