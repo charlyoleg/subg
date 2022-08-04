@@ -23,14 +23,22 @@ async function isGitRepo (pathDir2:string):Promise<boolean> {
     }
   }
   if (isRepoCandidate) {
-    //const git:any = simpleGit(pathDir2); // seems that the type of the argument of git.checkIsRepo() is not properly defined
-    //const gitcmd = await git.checkIsRepo('root');
-    //isRepo = gitcmd;
-    const git = simpleGit(pathDir2);
-    const gitcmd = await git.revparse(['--show-prefix']);
-    //console.log('A' + gitcmd + 'Z');
-    if (gitcmd === '') {
-      isRepo = true;
+    try {
+      //const git1:any = simpleGit(pathDir2); // seems that the type of the argument of git.checkIsRepo() is not properly defined
+      //const git1cmd = await git1.checkIsRepo('root');
+      //console.log(git1cmd);
+      //isRepo = gitcmd;
+      const git2 = simpleGit(pathDir2);
+      const git2cmd = await git2.revparse(['--show-prefix']);
+      //console.log('A' + gitcmd + 'Z');
+      if (git2cmd === '') {
+        isRepo = true;
+      }
+    } catch(err) {
+      //console.log(err);
+    }
+    if (!isRepo) {
+      console.log(`INFO299: the directory ${pathDir2} contains a sub-directory .git but is not a git-repository`);
     }
   }
   return isRepo;
