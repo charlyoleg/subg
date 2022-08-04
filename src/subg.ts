@@ -266,7 +266,7 @@ class Subg {
       }
     }
     this.discoverDir = this.discoverDir.replace(regex_trailingSlash, '');
-    console.log(this.discoverDir);
+    //console.log(this.discoverDir);
     // check if the path exist
     try {
       await fse.readdir(this.discoverDir, {withFileTypes: true});

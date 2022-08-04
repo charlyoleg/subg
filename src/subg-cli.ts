@@ -84,7 +84,7 @@ const argv = yargs(hideBin(process.argv))
     (a_argv) => { cmd.verify = true; }
   )
   .command('fetch', 'git fetch --prune the discovered git-repositories', {},
-    (a_argv) => { cmd.pull = true; }
+    (a_argv) => { cmd.fetch = true; }
   )
   .command('pull', 'pull the discovered git-repositories', {},
     (a_argv) => { cmd.pull = true; }
