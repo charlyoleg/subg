@@ -14,11 +14,22 @@ const regex_trailingSlash = /\/$/;
 
 async function isGitRepo (pathDir2:string):Promise<boolean> {
   let isRepo = false;
+  let isRepoCandidate = false;
   const subdirs = await fse.readdir(pathDir2, {withFileTypes: true});
   for (const subitem of subdirs) {
-    // This is the condition to check if pathDir2 is a git-repo
-    // This condition might be considered too weak
+    // Pre-condition to check if pathDir2 is a git-repo
     if (subitem.isDirectory() && (subitem.name === '.git')) {
+      isRepoCandidate = true;
+    }
+  }
+  if (isRepoCandidate) {
+    //const git:any = simpleGit(pathDir2); // seems that the type of the argument of git.checkIsRepo() is not properly defined
+    //const gitcmd = await git.checkIsRepo('root');
+    //isRepo = gitcmd;
+    const git = simpleGit(pathDir2);
+    const gitcmd = await git.revparse(['--show-prefix']);
+    //console.log('A' + gitcmd + 'Z');
+    if (gitcmd === '') {
       isRepo = true;
     }
   }
