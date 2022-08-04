@@ -51,3 +51,18 @@ echo -e "\n\n=====> Test log"
 ${dut} log
 echo -e "\n\n=====> Test remote"
 ${dut} remote
+echo -e "\n\n=====> Test stash_list"
+${dut} stash_list
+echo -e "\n\n=====> Test clean"
+${dut} --importYaml="tests/test_repos_2.yml" --importDir="tmp" --discoverDir='.' --deepSearch='true' --only_configured='true' clean
+echo -e "\n\n=====> Test custom"
+${dut} custom --git_command='log --stat -n1'
+echo -e "\n\n=====> Test export_yaml"
+${dut} export_yaml --yaml_path='tmp/foo.yml'
+echo -e "\n\n=====> Test verify_yaml"
+${dut} validate_yaml --yaml_path='tmp/foo.yml'
+echo -e "\n\n=====> Test versions"
+${dut} versions
+
+echo -e "\n\n=====> End of tests of $0"
+
