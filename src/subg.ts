@@ -509,6 +509,12 @@ class Subg {
     return r_code;
   }
 
+  /**
+   * Validate a yaml-file that could be imported later on.
+   *
+   * @param yamlPath the path to the yaml-file to be checked/validated.
+   * @returns an integer-code. 0 if the validation is successful, negative otherwise.
+   */
   async validate_yaml (yamlPath:string):Promise<number> {
     if (yamlPath === '') {
       console.log(`ERR482: Error, the discoverDir cannot be an empty string`);
@@ -517,10 +523,21 @@ class Subg {
     return await validate_yaml_external(yamlPath);
   }
 
+  /**
+   * Return a string with the three numbers (major, minor, patch) written in the package.json.
+   *
+   * @returns the string Major.Minor.Patch
+   */
   static version_short ():string {
     return subg_version_short;
   }
 
+  /**
+   * Return a long string including the last commit hash, timestamp, build-number.
+   * The string composition is PackageName_Major.Minor.Patch.BuildNumber_CommitHash_BuildDate_BuildTime
+   *
+   * @returns a long string with version information
+   */
   static version_long ():string {
     return subg_version_long;
   }

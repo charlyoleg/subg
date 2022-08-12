@@ -4,3 +4,4 @@ src/version_info.ts
 build
 dist
 tmp
+docs/api

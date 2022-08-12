@@ -17,6 +17,8 @@
     "node": ">=16.12.0"
   },
   "scripts": {
+    "doc:api": "typedoc",
+    "doc:api:view": "sensible-browser docs/api/index.html",
     "predev": "run-s prebuild",
     "dev": "tsc --build --watch",
     "prebuild": "node scr/generate_version_info.js",
