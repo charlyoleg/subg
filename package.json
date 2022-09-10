@@ -23,6 +23,7 @@
     "dev": "tsc --build --watch",
     "prebuild": "node scr/generate_version_info.js",
     "build": "tsc --build",
+    "lint": "eslint .",
     "clean": "rimraf build dist tmp",
     "test:basic": "node build/tests/subg.test.js",
     "test:cli": "tests/subg-cli.test.sh",
