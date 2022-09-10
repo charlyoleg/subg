@@ -1,7 +1,9 @@
 // generate_version_info.js
 "use strict";
 
-import { setTimeout } from 'node:timers/promises';
+//import { setTimeout } from 'node:timers/promises';
+import process from 'node:process';
+import console from 'node:console';
 import path from 'node:path';
 import fse from 'fs-extra';
 import yargs from 'yargs';

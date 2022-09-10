@@ -11,7 +11,7 @@ import { Subg } from '../src/subg-api.js';
 //await repos.d_export_yaml('tmp/exported_repos_1.yml');
 //await repos.d_export_yaml('tmp/exported_repos_2.yml', true);
 //const validation_result = await repos.validate_yaml('tests/test_repos_3.yml');
-let cmd = {
+const cmd = {
   list: false,
   clone: false,
   checkout: false,

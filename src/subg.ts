@@ -194,7 +194,7 @@ async function one_repo_info (localPath:string):Promise<RepoInfo> {
 }
 
 async function get_repos_info (repos:string[]):Promise<RepoInfo[]> {
-  let repos_info = [];
+  const repos_info = [];
   for (const [idx, localPath] of repos.entries()) {
     console.log(`===> ${idx+1} - get info of git-repo  ${localPath}`);
     const one_info = await one_repo_info(localPath);
@@ -316,7 +316,7 @@ class Subg {
 	}
       }
       //console.log(baseDir);
-      let list_non_git = [];
+      const list_non_git = [];
       try {
         const fstr = await fse.readFile(this.importYaml, 'utf-8');
         const fyaml = YAML.parse(fstr);
@@ -325,12 +325,12 @@ class Subg {
           //console.log(repoDir);
           // repoDir2 unifies the path format with the discovered git-repos
           let repoDir2 = repoDir;
-	  if (!isPathAbsolute(repoDir2)) {
+    if (!isPathAbsolute(repoDir2)) {
             repoDir2 = baseDir + repoDir;
             if (!regex_pointSlash.test(repoDir2)) {
               repoDir2 = './' + repoDir2;
             }
-	  }
+    }
           //console.log(fyaml.repositories[repoDir].type);
           if (!fyaml.repositories[repoDir].hasOwnProperty('type')
              || (fyaml.repositories[repoDir].type === "git")) {
@@ -488,7 +488,7 @@ class Subg {
     }
     const repos = this.d_list();
     const repos_info = await get_repos_info(repos);
-    let fyaml:any = { 'repositories': {} };
+    const fyaml:any = { 'repositories': {} };
     for (const repo of repos_info) {
       let version = repo.branch;
       if (commit_version) {
