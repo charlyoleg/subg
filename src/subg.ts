@@ -215,14 +215,14 @@ async function validate_yaml_external (yamlPath:string):Promise<number> {
     return -1;
   }
   try {
-    if (! fyaml.hasOwn('repositories'))
+    if (! Object.hasOwn(fyaml, 'repositories'))
       throw 'The property "repositories" is missing!';
     for (const repo in fyaml.repositories) {
-      if (! fyaml.repositories[repo].hasOwn('url'))
+      if (! Object.hasOwn(fyaml.repositories[repo], 'url'))
         throw `The property "url" is missing for repo ${repo} !`;
-      if (! fyaml.repositories[repo].hasOwn('version'))
+      if (! Object.hasOwn(fyaml.repositories[repo], 'version'))
         throw `The property "version" is missing for repo ${repo} !`;
-      if (! fyaml.repositories[repo].hasOwn('type')) {
+      if (! Object.hasOwn(fyaml.repositories[repo], 'type')) {
         console.log(`WARN390: Warning, the property "type" is missing for repo ${repo} !`);
       } else if (fyaml.repositories[repo].type !== 'git') {
         console.log(`WARN395: Warning, the property "type" of repo ${repo} is not git but ${fyaml.repositories[repo].type}!`);
@@ -345,7 +345,7 @@ class Subg {
             }
     }
           //console.log(fyaml.repositories[repoDir].type);
-          if (!fyaml.repositories[repoDir].hasOwn('type')
+          if (! Object.hasOwn(fyaml.repositories[repoDir], 'type')
              || (fyaml.repositories[repoDir].type === "git")) {
             this.listC[repoDir2] = {
               url: fyaml.repositories[repoDir].url,
