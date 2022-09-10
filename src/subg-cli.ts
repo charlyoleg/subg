@@ -117,8 +117,8 @@ const argv = yargs(hideBin(process.argv))
     {
       git_command: {
         type: 'string',
-	description: 'the git-command to be apply',
-	demandOption: true
+        description: 'the git-command to be apply',
+        demandOption: true
       }
     },
     (a_argv) => { cmd.custom = true; }
@@ -127,13 +127,13 @@ const argv = yargs(hideBin(process.argv))
     {
       yaml_path: {
         type: 'string',
-	description: 'the path to the output yaml-file',
-	demandOption: true
+        description: 'the path to the output yaml-file',
+        demandOption: true
       },
       commit_version: {
         type: 'boolean',
-	description: 'Use commit-hash instead of branch-name for version',
-	default: false
+        description: 'Use commit-hash instead of branch-name for version',
+        default: false
       }
     },
     (a_argv) => { cmd.export_yaml = true; }
@@ -142,8 +142,8 @@ const argv = yargs(hideBin(process.argv))
     {
       yaml_path: {
         type: 'string',
-	description: 'the path to the output yaml-file',
-	demandOption: true
+        description: 'the path to the output yaml-file',
+        demandOption: true
       }
     },
     (a_argv) => { cmd.validate_yaml = true; }
@@ -152,18 +152,17 @@ const argv = yargs(hideBin(process.argv))
     (a_argv) => { cmd.versions = true; }
   )
   .strict()
-  .parse();
+  .parseSync();
 //console.log(argv.discoverDir);
 //console.log(argv);
 
 //console.log("Hello from subg-cli.ts!");
 
-const argv2:any = argv; // workaround for typescript error
-//console.log(argv2.discoverDir);
-//console.log(argv2.deepSearch);
-//console.log(argv2.importYaml);
-//console.log(argv2.importDir);
-const subg = new Subg(argv2.discoverDir, argv2.deepSearch, argv2.importYaml, argv2.importDir);
+//console.log(argv.discoverDir);
+//console.log(argv.deepSearch);
+//console.log(argv.importYaml);
+//console.log(argv.importDir);
+const subg = new Subg(argv.discoverDir, argv.deepSearch, argv.importYaml, argv.importDir);
 await subg.init();
 
 function display_repo_list(repos:string[]):void {
@@ -193,19 +192,19 @@ if (cmd.list) {
 if (cmd.clone) { await subg.c_clone(); }
 if (cmd.checkout) { await subg.cd_checkout(); }
 if (cmd.verify) { await subg.cd_verify(); }
-if (cmd.fetch) { await subg.d_fetch(argv2.only_configured); }
-if (cmd.pull) { await subg.d_pull(argv2.only_configured); }
-if (cmd.push) { await subg.d_push(argv2.only_configured); }
-if (cmd.branch) { await subg.d_branch(argv2.only_configured); }
-if (cmd.status) { await subg.d_status(argv2.only_configured); }
-if (cmd.diff) { await subg.d_diff(argv2.only_configured); }
-if (cmd.log) { await subg.d_log(argv2.only_configured); }
-if (cmd.remote) { await subg.d_remote(argv2.only_configured); }
-if (cmd.stash_list) { await subg.d_stash_list(argv2.only_configured); }
-if (cmd.clean) { await subg.d_clean(argv2.only_configured); }
-if (cmd.custom) { await subg.d_custom(argv2.git_command, argv2.only_configured); }
-if (cmd.export_yaml) { await subg.d_export_yaml(argv2.yaml_path, argv2.commit_version); }
-if (cmd.validate_yaml) { await subg.validate_yaml(argv2.yaml_path); }
+if (cmd.fetch) { await subg.d_fetch(argv.only_configured); }
+if (cmd.pull) { await subg.d_pull(argv.only_configured); }
+if (cmd.push) { await subg.d_push(argv.only_configured); }
+if (cmd.branch) { await subg.d_branch(argv.only_configured); }
+if (cmd.status) { await subg.d_status(argv.only_configured); }
+if (cmd.diff) { await subg.d_diff(argv.only_configured); }
+if (cmd.log) { await subg.d_log(argv.only_configured); }
+if (cmd.remote) { await subg.d_remote(argv.only_configured); }
+if (cmd.stash_list) { await subg.d_stash_list(argv.only_configured); }
+if (cmd.clean) { await subg.d_clean(argv.only_configured); }
+if (cmd.custom) { await subg.d_custom(argv.git_command as string, argv.only_configured); }
+if (cmd.export_yaml) { await subg.d_export_yaml(argv.yaml_path as string, argv.commit_version as boolean); }
+if (cmd.validate_yaml) { await subg.validate_yaml(argv.yaml_path as string); }
 
 if (cmd.versions) {
   console.log(`subg-version-short : ${Subg.version_short()}`);
