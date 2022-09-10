@@ -72,46 +72,46 @@ const argv = yargs(hideBin(process.argv))
     default: false
     })
   .command('list', 'print the lists of git-repositories', {},
-    (a_argv) => { cmd.list = true; }
+    () => { cmd.list = true; }
   )
   .command('clone', 'clone the git-repositories listed in the importYaml file', {},
-    (a_argv) => { cmd.clone = true; }
+    () => { cmd.clone = true; }
   )
   .command('checkout', 'checkout the git-repos according to the importYaml file', {},
-    (a_argv) => { cmd.checkout = true; }
+    () => { cmd.checkout = true; }
   )
   .command('verify', 'verify if the discovered git-repos fit with the importYaml', {},
-    (a_argv) => { cmd.verify = true; }
+    () => { cmd.verify = true; }
   )
   .command('fetch', 'git fetch --prune the discovered git-repositories', {},
-    (a_argv) => { cmd.fetch = true; }
+    () => { cmd.fetch = true; }
   )
   .command('pull', 'pull the discovered git-repositories', {},
-    (a_argv) => { cmd.pull = true; }
+    () => { cmd.pull = true; }
   )
   .command('push', 'push the discovered git-repositories', {},
-    (a_argv) => { cmd.push = true; }
+    () => { cmd.push = true; }
   )
   .command('branch', 'show branch of the discovered git-repositories', {},
-    (a_argv) => { cmd.branch = true; }
+    () => { cmd.branch = true; }
   )
   .command('status', 'show status of the discovered git-repositories', {},
-    (a_argv) => { cmd.status = true; }
+    () => { cmd.status = true; }
   )
   .command('diff', 'show diff of the discovered git-repositories', {},
-    (a_argv) => { cmd.diff = true; }
+    () => { cmd.diff = true; }
   )
   .command('log', 'show log of the discovered git-repositories', {},
-    (a_argv) => { cmd.log = true; }
+    () => { cmd.log = true; }
   )
   .command('remote', 'show remote of the discovered git-repositories', {},
-    (a_argv) => { cmd.remote = true; }
+    () => { cmd.remote = true; }
   )
   .command('stash_list', 'show stash_list of the discovered git-repositories', {},
-    (a_argv) => { cmd.stash_list = true; }
+    () => { cmd.stash_list = true; }
   )
   .command('clean', 'git clean -dxf of the discovered git-repositories', {},
-    (a_argv) => { cmd.clean = true; }
+    () => { cmd.clean = true; }
   )
   .command('custom', 'git custom command for each of the discovered git-repos',
     {
@@ -121,7 +121,7 @@ const argv = yargs(hideBin(process.argv))
         demandOption: true
       }
     },
-    (a_argv) => { cmd.custom = true; }
+    () => { cmd.custom = true; }
   )
   .command('export_yaml', 'export the discovered git-repositories in a yaml-file',
     {
@@ -136,7 +136,7 @@ const argv = yargs(hideBin(process.argv))
         default: false
       }
     },
-    (a_argv) => { cmd.export_yaml = true; }
+    () => { cmd.export_yaml = true; }
   )
   .command('validate_yaml', 'validate the syntax of a yaml-file',
     {
@@ -146,10 +146,10 @@ const argv = yargs(hideBin(process.argv))
         demandOption: true
       }
     },
-    (a_argv) => { cmd.validate_yaml = true; }
+    () => { cmd.validate_yaml = true; }
   )
   .command('versions', 'print the versions of subg', {},
-    (a_argv) => { cmd.versions = true; }
+    () => { cmd.versions = true; }
   )
   .strict()
   .parseSync();

@@ -215,14 +215,14 @@ async function validate_yaml_external (yamlPath:string):Promise<number> {
     return -1;
   }
   try {
-    if (! fyaml.hasOwnProperty('repositories'))
+    if (! fyaml.hasOwn('repositories'))
       throw 'The property "repositories" is missing!';
     for (const repo in fyaml.repositories) {
-      if (! fyaml.repositories[repo].hasOwnProperty('url'))
+      if (! fyaml.repositories[repo].hasOwn('url'))
         throw `The property "url" is missing for repo ${repo} !`;
-      if (! fyaml.repositories[repo].hasOwnProperty('version'))
+      if (! fyaml.repositories[repo].hasOwn('version'))
         throw `The property "version" is missing for repo ${repo} !`;
-      if (! fyaml.repositories[repo].hasOwnProperty('type')) {
+      if (! fyaml.repositories[repo].hasOwn('type')) {
         console.log(`WARN390: Warning, the property "type" is missing for repo ${repo} !`);
       } else if (fyaml.repositories[repo].type !== 'git') {
         console.log(`WARN395: Warning, the property "type" of repo ${repo} is not git but ${fyaml.repositories[repo].type}!`);
@@ -250,6 +250,19 @@ interface RepoC {
   url: string;
   version: string;
 }
+
+interface RepoItem {
+  type: string;
+  url: string;
+  version: string;
+}
+
+interface FileYaml {
+  repositories: {
+    [key: string]: RepoItem;
+  }
+}
+
 
 class Subg {
   discoverDir: string;
@@ -332,7 +345,7 @@ class Subg {
             }
     }
           //console.log(fyaml.repositories[repoDir].type);
-          if (!fyaml.repositories[repoDir].hasOwnProperty('type')
+          if (!fyaml.repositories[repoDir].hasOwn('type')
              || (fyaml.repositories[repoDir].type === "git")) {
             this.listC[repoDir2] = {
               url: fyaml.repositories[repoDir].url,
@@ -488,7 +501,7 @@ class Subg {
     }
     const repos = this.d_list();
     const repos_info = await get_repos_info(repos);
-    const fyaml:any = { 'repositories': {} };
+    const fyaml:FileYaml = { 'repositories': {} };
     for (const repo of repos_info) {
       let version = repo.branch;
       if (commit_version) {
