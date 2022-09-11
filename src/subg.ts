@@ -251,15 +251,13 @@ interface RepoC {
   version: string;
 }
 
-interface RepoItem {
-  type: string;
-  url: string;
-  version: string;
-}
-
 interface FileYaml {
   repositories: {
-    [key: string]: RepoItem;
+    [key: string]: {
+      type: string;
+      url: string;
+      version: string;
+    };
   }
 }
 
