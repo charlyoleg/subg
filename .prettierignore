@@ -5,3 +5,4 @@ build
 dist
 tmp
 docs/api
+README.md
