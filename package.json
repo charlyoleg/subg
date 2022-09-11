@@ -32,6 +32,7 @@
     "test": "run-s test:basic test:cli",
     "predist:build": "run-s prebuild",
     "dist:build": "tsc --build tsconfig.dist.json",
+    "make_all": "run-s clean build lint prettier:check dist:build",
     "clean_all": "run-s clean"
   },
   "repository": {
