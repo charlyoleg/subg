@@ -292,11 +292,13 @@ function isPathAbsolute(path: string): boolean {
   return r_absolute;
 }
 
+/** The interface `RepoC` is used to construct the property `listC`. */
 interface RepoC {
   url: string;
   version: string;
 }
 
+/** The interface `FileYaml` is used to generate the object that will be exported as Yaml-file. */
 interface FileYaml {
   repositories: {
     [key: string]: {
@@ -307,14 +309,28 @@ interface FileYaml {
   };
 }
 
+/**
+ * A class that contains a list of configured repositories, a list of discovered repositories and methods that use those two lists.
+ */
 class Subg {
+  /** The top directory from where to search repositories. */
   discoverDir: string;
+  /** When a repository is encountered, should it be inspected for searching sub-repositories? */
   deepSearch: boolean;
+  /** The path to the yaml-file that provides the repositories to be cloned. */
   importYaml: string;
+  /** The base directory where the directories listed in the yaml-file should be cloned. */
   importDir: string;
+  /** The list of the path of the discovered repositories. It is populated by the `init()` method. */
   listD: string[];
+  /** An object with the content of the yaml-file. It is populated by the `init()` method. */
   listC: { [p: string]: RepoC };
 
+  /**
+   * The constructor of the `Subg` class.
+   * `listD` is initialized to an empty list.
+   * `listC` is initialized to an empty object.
+   */
   constructor(
     discoverDir = ".",
     deepSearch = true,
@@ -439,6 +455,11 @@ class Subg {
     return r_code;
   }
 
+  /**
+   * The `init` method populate populate `listD` and `listC`.
+   * It must be called just after instanciating `Subg`.
+   * The configuration properties `discoverDir`, `deepSearch`, `importYaml` and `importDir` can be reassinged by `init`.
+   */
   async init(
     discoverDir = this.discoverDir,
     deepSearch = this.deepSearch,
@@ -451,31 +472,32 @@ class Subg {
     return r_code;
   }
 
+  /** List the discovered repositories. */
   d_list(): string[] {
     return this.listD;
   }
 
+  /** List the wished repositories (a.k.a. configured repositories). */
   c_list(): string[] {
     return Object.keys(this.listC);
   }
 
-  // list the git-repos which are in the D-list and in the C-list
+  /** List the git-repos which are in the D-list and in the C-list. I.e. Intersection of D and C. */
   cd_list(): string[] {
     return array_intersection(this.listD, Object.keys(this.listC));
   }
 
-  // list the git-repos which are in the D-list but not in the C-list
-  // D not C
+  /** List the git-repos which are in the D-list but not in the C-list. I.e. D not C. */
   dnc_list(): string[] {
     return array_exclude(this.listD, Object.keys(this.listC));
   }
 
-  // list the git-repos which are in the C-list but not in the D-list
-  // C not D
+  /** List the git-repos which are in the C-list but not in the D-list. I.e. C not D. */
   cnd_list(): string[] {
     return array_exclude(Object.keys(this.listC), this.listD);
   }
 
+  /** Clone the repositories of `listC`. */
   async c_clone(): Promise<number> {
     let r_code = 0;
     for (const [idx, localPath] of Object.keys(this.listC).entries()) {
@@ -490,6 +512,7 @@ class Subg {
     return r_code;
   }
 
+  /** Checkout the repositories listed in `listC` and `listD`. */
   async cd_checkout(): Promise<number> {
     let r_code = 0;
     const list_cd = this.cd_list();
@@ -503,6 +526,7 @@ class Subg {
     return r_code;
   }
 
+  /** For the repositories listed in `listC` and `listD`, verify if they fit with the configuration of Yaml-file. */
   async cd_verify(): Promise<number> {
     let r_code = 0;
     const list_cd = this.cd_list();
@@ -518,6 +542,7 @@ class Subg {
     return r_code;
   }
 
+  /** Run a custom git-command on the discoverd repositories (`listD`). */
   async d_custom(
     git_command: string,
     only_configured_repo = false
@@ -538,46 +563,57 @@ class Subg {
     return r_code;
   }
 
+  /** Git-fetch on the discoverd repositories (`listD`). */
   async d_fetch(only_configured_repo = false): Promise<number> {
     return await this.d_custom("fetch --prune", only_configured_repo);
   }
 
+  /** Git-pull on the discoverd repositories (`listD`). */
   async d_pull(only_configured_repo = false): Promise<number> {
     return await this.d_custom("pull", only_configured_repo);
   }
 
+  /** Git-push on the discoverd repositories (`listD`). */
   async d_push(only_configured_repo = false): Promise<number> {
     return await this.d_custom("push", only_configured_repo);
   }
 
+  /** Show the current branch of the discoverd repositories (`listD`). */
   async d_branch(only_configured_repo = false): Promise<number> {
     return await this.d_custom("branch --show-current", only_configured_repo);
   }
 
+  /** Git-status on the discoverd repositories (`listD`). */
   async d_status(only_configured_repo = false): Promise<number> {
     return await this.d_custom("status", only_configured_repo);
   }
 
+  /** Git-diff on the discoverd repositories (`listD`). */
   async d_diff(only_configured_repo = false): Promise<number> {
     return await this.d_custom("diff", only_configured_repo);
   }
 
+  /** `Git-log -n 3` on the discoverd repositories (`listD`). */
   async d_log(only_configured_repo = false): Promise<number> {
     return await this.d_custom("log -n 3", only_configured_repo);
   }
 
+  /** `Git-remote -vv` on the discoverd repositories (`listD`). */
   async d_remote(only_configured_repo = false): Promise<number> {
     return await this.d_custom("remote -vv", only_configured_repo);
   }
 
+  /** `Git-stash list` on the discoverd repositories (`listD`). */
   async d_stash_list(only_configured_repo = false): Promise<number> {
     return await this.d_custom("stash list", only_configured_repo);
   }
 
+  /** `Git-clean -dxf` on the discoverd repositories (`listD`). */
   async d_clean(only_configured_repo = false): Promise<number> {
     return await this.d_custom("clean -dxf", only_configured_repo);
   }
 
+  /** Export in a Yaml-file the list of discoverd repositories (`listD`). */
   async d_export_yaml(
     yamlPath: string,
     commit_version = false
