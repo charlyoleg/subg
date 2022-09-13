@@ -19,6 +19,7 @@
   "scripts": {
     "doc:api": "typedoc",
     "doc:api:view": "sensible-browser docs/api/index.html",
+    "doc:api:clean": "rimraf docs/api",
     "predev": "run-s prebuild",
     "dev": "tsc --build --watch",
     "prebuild": "node scr/generate_version_info.js",
@@ -33,7 +34,7 @@
     "predist:build": "run-s prebuild",
     "dist:build": "tsc --build tsconfig.dist.json",
     "make_all": "run-s clean build lint prettier:check dist:build",
-    "clean_all": "run-s clean"
+    "clean_all": "run-s clean doc:api:clean"
   },
   "repository": {
     "type": "git",
